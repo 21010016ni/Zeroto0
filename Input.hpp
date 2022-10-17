@@ -29,7 +29,8 @@ public:
 	}
 
 	static unsigned char& get(unsigned char code)noexcept { return (unsigned char&)value[code]; }
-	static bool press(unsigned char code)noexcept { return value[code].press(); }
+	static bool press(unsigned char code)noexcept { 
+		return value[code].press(); }
 	static bool push(unsigned char code)noexcept { return value[code].push(); }
 	static bool pull(unsigned char code)noexcept { return value[code].pull(); }
 };

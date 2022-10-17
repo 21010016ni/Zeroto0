@@ -5,6 +5,8 @@
 #include "Manager.hpp"
 #include "convert_string.hpp"
 
+#include <iostream>
+
 Point<int> Application::WindowSize = {600,1024};
 int Application::WindowColorBit = 32;
 const char8_t* Application::Title = u8"Zero to 0";
@@ -42,6 +44,8 @@ int Application::Main(HINSTANCE, HINSTANCE, LPSTR, int)
 		Mouse::update();
 		// 処理ブロック
 		//----------------------------------------------------------------<<
+		(int)Keyboard::get(0xc8);
+		(int)Keyboard::press(0xc8);
 		Manager::update();
 
 		// スクリーンショット
