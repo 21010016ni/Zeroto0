@@ -44,14 +44,12 @@ int Application::Main(HINSTANCE, HINSTANCE, LPSTR, int)
 		Mouse::update();
 		// 処理ブロック
 		//----------------------------------------------------------------<<
-		(int)Keyboard::get(0xc8);
-		(int)Keyboard::press(0xc8);
 		Manager::update();
 
 		// スクリーンショット
-		if(Keyboard::push(KEY_INPUT_F7))
+		if(Keyboard::push(VK_F7))
 			SaveDrawScreen(0, 0, WindowSize.x, WindowSize.y, std::format("ScreenShot_{:%m%d%H%M%OS}.jpg", std::chrono::zoned_time{std::chrono::current_zone(), std::chrono::system_clock::now()}).c_str(), DX_IMAGESAVETYPE_JPEG);
-		if(Keyboard::push(KEY_INPUT_F9))
+		if(Keyboard::push(VK_F9))
 			break;
 
 		//---------------------------------------------------------------->>

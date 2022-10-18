@@ -1,6 +1,6 @@
 #include "Field.hpp"
 
-std::weak_ptr<Field::Value> Field::get(int pos, int range)
+std::weak_ptr<Field::Value> Field::get(int pos, int range, bool force)
 {
 	auto it = list.begin();
 	if(range > 0)
@@ -8,7 +8,7 @@ std::weak_ptr<Field::Value> Field::get(int pos, int range)
 		for(; it != list.end(); ++it)
 			if((*it)->pos >= pos)
 				break;
-		if(it != list.end() && (*it)->pos <= pos + range && (**it))
+		if(it != list.end() && (*it)->pos <= pos + range && ((**it) || force))
 			return *it;
 		return std::weak_ptr<Value>();
 	}
@@ -25,27 +25,25 @@ std::weak_ptr<Field::Value> Field::get(int pos, int range)
 	}
 }
 
-std::list<std::shared_ptr<Field::Value>>::iterator Field::getIterator(int pos, int range)
+std::list<std::shared_ptr<Field::Value>>::iterator Field::getIterator(int pos, int range, bool force)
 {
 	auto it = list.begin();
 	if(range > 0)
 	{
 		for(; it != list.end(); ++it)
-			if((*it)->pos >= pos)
+			if((*it)->pos > pos)
 				break;
-		if(it != list.end() && (*it)->pos <= pos + range && (**it))
+		if(it != list.end() && (*it)->pos <= pos + range && ((**it) || force))
 			return it;
 		return list.end();
 	}
 	else
 	{
 		for(; it != list.end(); ++it)
-		{
-			if((*it)->pos > pos)
+			if((*it)->pos >= pos)
 				break;
 			else if((*it)->pos >= pos + range && (**it))
 				return it;
-		}
 		return list.end();
 	}
 }

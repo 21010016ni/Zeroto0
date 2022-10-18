@@ -13,6 +13,9 @@ void StatusInst::AddItem(const std::map<int, int>& t)
 {
 	for(const auto& i : t)
 	{
-		item[i.first] += i.second;
+		if(item[i.first] != -1)
+		{
+			item[i.first] += i.second;
+		}
 	}
 }

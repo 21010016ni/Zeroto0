@@ -21,9 +21,27 @@ bool Action::execute(int id, Object& user)
 	return i->second(user);
 }
 
+/*
+* 原則、アクションIDはアイテムIDと同じ値を設定する
+* ビット演算の可能性を残すために、16進数で設定
+* +0000 ~ +0fff	アイテムを相手に使用
+* +1000 ~ +1fff	アイテムを自身に使用
+* -0001			接触時
+* -0002			倒されたとき
+* -0003			
+*/
+
+enum Key :int
+{
+	item_use = 0x0000,
+	item_self = 0x1000,
+	touch = -1,
+	killed = -2,
+};
+
 std::unordered_map<int, Action::ValueSingle> Action::commonActionSingle =
 {
-	{0,[](Object&) { return true; }},
+	{item_use + 0,[](Object&) { return true; }},
 };
 
 std::unordered_map<int, Action::ValueDouble> Action::commonActionDouble =
