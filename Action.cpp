@@ -1,6 +1,8 @@
 #include "Action.hpp"
 #include "Field.hpp"
 
+#include <iostream>
+
 bool Action::execute(int id, Object& user, Object& target)
 {
 	auto i = action.find(id);
@@ -41,11 +43,13 @@ enum Key :int
 
 std::unordered_map<int, Action::ValueSingle> Action::commonActionSingle =
 {
-	{item_use + 0,[](Object&) { return true; }},
+	{item_use + 0,[](Object&) { std::cout << "アクション0を単独で実行" << std::endl; return true; }},
+	{item_use + 1,[](Object&) { std::cout << "アクション1を単独で実行" << std::endl; return true; }},
 };
 
 std::unordered_map<int, Action::ValueDouble> Action::commonActionDouble =
 {
-	{0,[](Object&,Object&) { return true; }},
+	{item_use + 0,[](Object&,Object&) { std::cout << "アクション0を対象を取って実行" << std::endl; return true; }},
+	{item_use + 1,[](Object&,Object&) { std::cout << "アクション1を対象を取って実行" << std::endl; return true; }},
 };
 

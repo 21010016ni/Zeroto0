@@ -154,6 +154,7 @@
     <ClCompile Include="HandleManager.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Manager.cpp" />
+    <ClCompile Include="Inventory.cpp" />
     <ClCompile Include="Object.cpp" />
     <ClCompile Include="Particle.cpp" />
     <ClCompile Include="Status.cpp" />
@@ -172,6 +173,7 @@
     <ClInclude Include="Input.hpp" />
     <ClInclude Include="Item.hpp" />
     <ClInclude Include="Manager.hpp" />
+    <ClInclude Include="Inventory.hpp" />
     <ClInclude Include="Object.hpp" />
     <ClInclude Include="Particle.hpp" />
     <ClInclude Include="Point.hpp" />

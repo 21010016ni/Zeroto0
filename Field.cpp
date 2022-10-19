@@ -6,7 +6,7 @@ std::weak_ptr<Field::Value> Field::get(int pos, int range, bool force)
 	if(range > 0)
 	{
 		for(; it != list.end(); ++it)
-			if((*it)->pos >= pos)
+			if((*it)->pos > pos)
 				break;
 		if(it != list.end() && (*it)->pos <= pos + range && ((**it) || force))
 			return *it;
@@ -16,7 +16,7 @@ std::weak_ptr<Field::Value> Field::get(int pos, int range, bool force)
 	{
 		for(; it != list.end(); ++it)
 		{
-			if((*it)->pos > pos)
+			if((*it)->pos >= pos)
 				break;
 			else if((*it)->pos >= pos + range && (**it))
 				return *it;
