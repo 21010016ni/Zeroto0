@@ -37,7 +37,7 @@ void Manager::preset()
 	player->status->second.item.emplace(12, 10);
 
 	Field::set(player);
-	Field::set(new Object(5, Status(10, 10, 0)));
+	Field::set(new Object(15, Status(10, 10, 0)));
 
 	volume.mute &= 0b11111110;
 }

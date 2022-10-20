@@ -18,7 +18,7 @@ void Inventory::controll(Player* player)
 		if (it->first < DataBase::item.size())
 		{
 			auto target = Field::get(player->pos, DataBase::item[it->first].reach);
-			if ((target.expired() ? Action::execute(it->first, *player) : target.lock()->execute(DataBase::item[it->first].id, *player)) && it->second != -1)
+			if ((target.expired() ? Action::execute(DataBase::item[it->first].id, *player) : target.lock()->execute(DataBase::item[it->first].id, *player)) && it->second != -1)
 				if (--it->second == 0)
 					player->status->second.item.erase(it);
 			player->status->second.cool = 20;	// ‰¼
