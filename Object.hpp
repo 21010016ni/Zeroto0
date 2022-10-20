@@ -26,7 +26,7 @@ public:
 
 	Player(int pos, Status status) :Object(pos, status)
 	{
-		shortcut.resize(64);
+		shortcut.resize(64, -1);
 	}
 };
 

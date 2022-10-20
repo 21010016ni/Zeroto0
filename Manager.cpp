@@ -108,7 +108,7 @@ void Manager::update()
 						if (item != player->status->second.item.cend())
 						{
 							auto target = Field::get(player->pos, DataBase::item[id].reach);
-							if ((target.expired() ? Action::execute(id, *player) : target.lock()->execute(DataBase::item[id].id, *player)) && item->second != -1)
+							if ((target.expired() ? Action::execute(DataBase::item[id].id, *player) : target.lock()->execute(DataBase::item[id].id, *player)) && item->second != -1)
 								if (--item->second == 0)
 									player->status->second.item.erase(item);
 							player->status->second.cool = 20;	// 仮
@@ -133,12 +133,15 @@ void Manager::draw()
 
 	Inventory::draw(static_cast<Player*>(player.get()));
 
-	//for(int i = 0; i < 256; ++i)
-	//{
-	//	DrawFormatString(20 * (i / 32), 10 * (i % 32), 0xffffffff, "%d", Keyboard::get(i));
-	//}
-
 	Effect::play();
 	ParticleSystem::draw();
+
+	//SetDrawBlendMode(DX_BLENDMODE_ALPHA, 128);
+	//DrawBox(0, 0, 1024, 600, 0xff000000, TRUE);
+	//SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
+	//for(int i = 0; i < 256; ++i)
+	//{
+	//	DrawFormatString(100 * (i / 32), 18 * (i % 32), 0xffffffff, "%02x : %02x", i, Keyboard::get(i));
+	//}
 }
 

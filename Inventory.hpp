@@ -11,6 +11,8 @@ class Inventory
 
 	static inline int cool = 0;
 
+	static short qwerty[64];
+
 public:
 	static bool active;
 	static inline int select = 0;
