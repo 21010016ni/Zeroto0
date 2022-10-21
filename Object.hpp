@@ -16,7 +16,7 @@ public:
 
 	bool execute(int id, Object& user);
 
-	constexpr operator bool()const noexcept { return static_cast<bool>(status); }
+	operator bool()const noexcept { return static_cast<bool>(status); }
 };
 
 class Player :public Object

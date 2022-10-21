@@ -1,19 +1,22 @@
 #include "DataBase.hpp"
+#include <fstream>
+#include <boost/algorithm/string.hpp>
+#include "convert_string.hpp"
 
-const std::vector<Item> DataBase::item =
+void DataBase::LoadItem(const char* FileName)
 {
-	{u8"真鍮の鍵",0,0x0dd,10},
-	{u8"白金の鍵",1,0x0df,10},
-	{u8"毒薬",1,0x1de,10},
-	{u8"回復薬",1,0x1d2,10},
-	{u8"ショートソード",1,0x003,10},
-	{u8"ハンドアックス",1,0x015,10},
-	{u8"ショートスピア",1,0x010,10},
-	{u8"香花詰めの枕",1,0x191,10},
-	{u8"白花の日記帳",1,0x109,10},
-	{u8"花がらポプリ",1,0x23e,10},
-	{u8"押し花の栞",1,0x19b,10},
-	{u8"きらめく石花",1,0x1b1,10},
-	{u8"花飾りの黒靴",1,0x055,10},
-};
-
+	std::ifstream ifs(FileName);
+	if (!ifs.is_open())
+		throw;
+	std::string line;
+	std::vector<std::string> elem;
+	while (std::getline(ifs, line))
+	{
+		if (line.empty() || line.front() == '#')
+			continue;
+		boost::split(elem, line, boost::is_any_of(","));
+		if (elem.size() != 4)
+			continue;
+		item.emplace_back(ext::convert(elem[0]).c_str(), std::stoi(elem[1], nullptr, 16), std::stoi(elem[2]), std::stoi(elem[3]));
+	}
+}

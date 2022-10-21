@@ -11,12 +11,14 @@
 #include "DataBase.hpp"
 #include "Display.hpp"
 #include "Inventory.hpp"
+#include "Text.hpp"
 
 void Manager::preset()
 {
 	font = LoadFontDataToHandle((const char*)u8"data/font/刻明朝18.dft");
 	Display::SetFont(font);
 	Icon::load("data/picture/icon.png", 16);
+	DataBase::LoadItem("data/item.dat");
 
 	Effect::load(LoadGraph("data/effect/pipo-btleffect001.png"), 5, 1, LoadSoundMem((const char*)u8"data/se/刀剣・斬る01.mp3"));
 
@@ -118,6 +120,8 @@ void Manager::update()
 		}
 	}
 
+	TextManager::update();
+
 	// BGM更新処理
 	BGM::update();
 	// ハンドル管理更新
@@ -132,6 +136,8 @@ void Manager::draw()
 	}
 
 	Inventory::draw(static_cast<Player*>(player.get()));
+
+	TextManager::draw();
 
 	Effect::play();
 	ParticleSystem::draw();

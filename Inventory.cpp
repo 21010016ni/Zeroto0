@@ -167,16 +167,16 @@ void Inventory::draw(const Player* player)
 		{
 			if(i.first < DataBase::item.size())
 			{
-				display.DrawBox(boxSize.x * (num % column), boxSize.y * (num / column), boxSize, 0xff888888, TRUE);
+				display.DrawBox(boxSize.x * (num % column), boxSize.y * (num / column), boxSize, 0xff888888, true);
 				display.DrawIcon(boxSize.x * (num % column) + 1, boxSize.y * (num / column) + 1, DataBase::item[i.first].icon);
 				display.DrawRawString(boxSize.x * (num % column) + boxSize.y + 3, boxSize.y * (num / column) + 4, DataBase::item[i.first].name, 0xffffffff);
 				if(i.second != -1)
 					display.DrawRawString(boxSize.x * ((num % column) + 1) - 5, boxSize.y * (num / column) + 4, ext::convert(std::to_string(i.second)), 0xffffffff, Ref::right);
-				display.DrawBox(boxSize.x * (num % column), boxSize.y * (num / column), boxSize, 0xff6a6a6a, FALSE);
+				display.DrawBox(boxSize.x * (num % column), boxSize.y * (num / column), boxSize, 0xff6a6a6a, false);
 				if(num == select)
 				{
 					SetDrawBlendMode(DX_BLENDMODE_ADD, 64);
-					display.DrawBox(boxSize.x * (num % column), boxSize.y * (num / column), boxSize, 0xffffffff, TRUE);
+					display.DrawBox(boxSize.x * (num % column), boxSize.y * (num / column), boxSize, 0xffffffff, true);
 					SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 				}
 				++num;

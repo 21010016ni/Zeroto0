@@ -5,6 +5,8 @@
 class DataBase
 {
 public:
-	static const std::vector<Item> item;
+	static inline std::vector<Item> item;
+
+	static void LoadItem(const char* FileName);
 };
 

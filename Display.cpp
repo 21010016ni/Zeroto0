@@ -59,7 +59,7 @@ void Display::DrawString(const Point<int>& dst, const std::u8string& text, unsig
 					DxLib::DrawStringToHandle(textCursor.x, textCursor.y, "<", c, font);
 					textCursor.x += GetDrawStringWidthToHandle("<", 1, font);
 				}
-				else if (elem[0] == u8"n")
+				else if (elem[0] == u8"br")
 				{
 					// n ‰üs
 					textCursor.y += fontSize;
@@ -117,7 +117,7 @@ void Display::DrawRawString(int x, int y, const std::u8string& text, unsigned in
 	int rx = 0, ry = 0;
 	if (ref & 0b00000011)
 	{
-		rx = GetDrawStringWidthToHandle(ext::tochar(text), text.size(), font);
+		rx = GetDrawStringWidthToHandle(ext::tochar(text), (int)text.size(), font);
 		if (ref & 0b00000001)
 			rx /= 2;
 	}
