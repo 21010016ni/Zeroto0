@@ -92,6 +92,8 @@ short Inventory::qwerty[64] =
 void Inventory::controll(Player* player)
 {
 	--cool;
+	if(player->status->second.item.empty())
+		return;
 	Point<int> p(select / column, select % column);
 	if (Keyboard::push(VK_UP))
 	{
@@ -195,23 +197,32 @@ void Inventory::draw(const Player* player)
 	{
 		int num = 0;
 		Point<int> boxSize(26, 180);
-		for(const auto& i : player->status->second.item)
+		if(player->status->second.item.empty())
 		{
-			if(i.first < DataBase::item.size())
+			display.DrawBox(0, 0, boxSize, 0xff888888, true);
+			display.DrawRawString(3, 4, u8"アイテムを持っていない", 0xffffffff);
+			display.DrawBox(0, 0, boxSize, 0xff6a6a6a, false);
+		}
+		else
+		{
+			for(const auto& i : player->status->second.item)
 			{
-				display.DrawBox(boxSize.x * (num % column), boxSize.y * (num / column), boxSize, 0xff888888, true);
-				display.DrawIcon(boxSize.x * (num % column) + 1, boxSize.y * (num / column) + 1, DataBase::item[i.first].icon);
-				display.DrawRawString(boxSize.x * (num % column) + boxSize.y + 3, boxSize.y * (num / column) + 4, DataBase::item[i.first].name, 0xffffffff);
-				if(i.second != -1)
-					display.DrawRawString(boxSize.x * ((num % column) + 1) - 5, boxSize.y * (num / column) + 4, ext::convert(std::to_string(i.second)), 0xffffffff, Ref::right);
-				display.DrawBox(boxSize.x * (num % column), boxSize.y * (num / column), boxSize, 0xff6a6a6a, false);
-				if(num == select)
+				if(i.first < DataBase::item.size())
 				{
-					SetDrawBlendMode(DX_BLENDMODE_ADD, 64);
-					display.DrawBox(boxSize.x * (num % column), boxSize.y * (num / column), boxSize, 0xffffffff, true);
-					SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
+					display.DrawBox(boxSize.x * (num % column), boxSize.y * (num / column), boxSize, 0xff888888, true);
+					display.DrawIcon(boxSize.x * (num % column) + 1, boxSize.y * (num / column) + 1, DataBase::item[i.first].icon);
+					display.DrawRawString(boxSize.x * (num % column) + boxSize.y + 3, boxSize.y * (num / column) + 4, DataBase::item[i.first].name, 0xffffffff);
+					if(i.second != -1)
+						display.DrawRawString(boxSize.x * ((num % column) + 1) - 5, boxSize.y * (num / column) + 4, ext::convert(std::to_string(i.second)), 0xffffffff, Ref::right);
+					display.DrawBox(boxSize.x * (num % column), boxSize.y * (num / column), boxSize, 0xff6a6a6a, false);
+					if(num == select)
+					{
+						SetDrawBlendMode(DX_BLENDMODE_ADD, 64);
+						display.DrawBox(boxSize.x * (num % column), boxSize.y * (num / column), boxSize, 0xffffffff, true);
+						SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
+					}
+					++num;
 				}
-				++num;
 			}
 		}
 		// ショートカット表示
