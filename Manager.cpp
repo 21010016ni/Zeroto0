@@ -22,24 +22,28 @@ void Manager::preset()
 
 	Effect::load(LoadGraph("data/effect/pipo-btleffect001.png"), 5, 1, LoadSoundMem((const char*)u8"data/se/刀剣・斬る01.mp3"));
 
-	player.reset(new Player(0, Status(10, 10, 0)));
-	static_cast<Player*>(player.get())->shortcut[0x2a] = 0;
-	player->status->second.item.emplace(0, 10);
-	player->status->second.item.emplace(1, 10);
-	player->status->second.item.emplace(2, 10);
-	player->status->second.item.emplace(3, 10);
-	player->status->second.item.emplace(4, 10);
-	player->status->second.item.emplace(5, 10);
-	player->status->second.item.emplace(6, 10);
-	player->status->second.item.emplace(7, 10);
-	player->status->second.item.emplace(8, 10);
-	player->status->second.item.emplace(9, 10);
-	player->status->second.item.emplace(10, 10);
-	player->status->second.item.emplace(11, 10);
-	player->status->second.item.emplace(12, 10);
+	static Status player_status(10, 10, u8"data/picture/flower0497.png", 0);
+	//player.reset(new Player(0, player_status,10));
+	//static_cast<Player*>(player.get())->shortcut[0x2a] = 0;
+	//player->status->second.item.emplace(0, 10);
+	//player->status->second.item.emplace(1, 10);
+	//player->status->second.item.emplace(2, 10);
+	//player->status->second.item.emplace(3, 10);
+	//player->status->second.item.emplace(4, 10);
+	//player->status->second.item.emplace(5, 10);
+	//player->status->second.item.emplace(6, 10);
+	//player->status->second.item.emplace(7, 10);
+	//player->status->second.item.emplace(8, 10);
+	//player->status->second.item.emplace(9, 10);
+	//player->status->second.item.emplace(10, 10);
+	//player->status->second.item.emplace(11, 10);
+	//player->status->second.item.emplace(12, 10);
 
-	Field::set(player);
-	Field::set(new Object(15, Status(10, 10, 0)));
+	static Status enemy_status(10, 10, u8"data/picture/flower3868.png", 1);
+
+	Field::set(new Player(0, &player_status, 10));
+	player = *Field::begin();
+	Field::set(new Object(15, &enemy_status));
 
 	volume.mute &= 0b11111110;
 }
@@ -130,6 +134,18 @@ void Manager::update()
 
 void Manager::draw()
 {
+	//auto it = Field::getIterator(player);
+	//++it;
+	auto it = Field::cend();
+	while (it != Field::begin() && (*--it)->pos > player->pos + static_cast<Player*>(player.get())->searchRange);
+	while ((*it)->pos > player->pos && (*it)->pos <= player->pos + static_cast<Player*>(player.get())->searchRange)
+	{
+		DrawGraph(0, 0, HandleManager::get((*it)->status->first->graph, HandleManager::Type::graph), TRUE);
+		if (it == Field::begin())
+			break;
+		--it;
+	}
+
 	for (auto i = Field::begin(); i != Field::cend(); ++i)
 	{
 		DrawCircle(10 + (*i)->pos * 10, 10, 8, 0xffffffff);

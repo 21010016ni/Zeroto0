@@ -12,7 +12,7 @@ public:
 	int pos;
 
 	Object(int pos) :pos(pos) {}
-	Object(int pos, Status status) :pos(pos), status(new std::pair<Status*, StatusInst>(&status, StatusInst(status))) {}
+	Object(int pos, Status* status) :pos(pos), status(new std::pair<Status*, StatusInst>(status, StatusInst(*status))) {}
 
 	bool execute(int id, Object& user);
 
@@ -22,9 +22,10 @@ public:
 class Player :public Object
 {
 public:
+	int searchRange;
 	std::vector<int> shortcut;
 
-	Player(int pos, Status status) :Object(pos, status)
+	Player(int pos, Status* status, int searchRange) :Object(pos, status), searchRange(searchRange)
 	{
 		shortcut.resize(64, -1);
 	}

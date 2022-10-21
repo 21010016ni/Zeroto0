@@ -77,57 +77,89 @@ short Inventory::qwerty[64] =
 		24,	// 6f	キーの分割
 };
 
+// 
+// 上下は範囲外
+// 左右は範囲外・行外れ
+// 行外れの判定は直前の選択位置と行を比較する？
+// 
+// 左右の範囲外は、+column)%columnでいいか　その行の数
+// 上下もその列の数を受け取れば良さそう
+// 
+// min(num-prev/column*column,column)
+// (num-prev%column-1)/column+1
+// 
+
 void Inventory::controll(Player* player)
 {
 	--cool;
-	if(Keyboard::push(VK_UP))
+	Point<int> p(select / column, select % column);
+	if (Keyboard::push(VK_UP))
 	{
-		if(select - column >= 0)
-			select -= column;
 		cool = 12;
+		p.y -= 1;
+		if (p.y < 0)
+			p.y += (static_cast<int>(player->status->second.item.size()) - select % column - 1) / column + 1;
 	}
-	else if(Keyboard::press(VK_UP) && cool < 0)
+	else if (Keyboard::press(VK_UP) && cool < 0)
 	{
-		if(select - column >= 0)
-			select -= column;
 		cool = 4;
+		p.y -= 1;
+		if (p.y < 0)
+			p.y += (static_cast<int>(player->status->second.item.size()) - select % column - 1) / column + 1;
 	}
-	else if(Keyboard::push(VK_DOWN))
+	else if (Keyboard::push(VK_DOWN))
 	{
-		if(select + column < (int)player->status->second.item.size())
-			select += column;
 		cool = 12;
+		p.y += 1;
+		p.y %= (static_cast<int>(player->status->second.item.size()) - select % column - 1) / column + 1;
 	}
-	else if(Keyboard::press(VK_DOWN) && cool < 0)
+	else if (Keyboard::press(VK_DOWN) && cool < 0)
 	{
-		if(select + column < (int)player->status->second.item.size())
-			select += column;
 		cool = 4;
+		p.y += 1;
+		p.y %= (static_cast<int>(player->status->second.item.size()) - select % column - 1) / column + 1;
 	}
-	if(Keyboard::push(VK_LEFT))
+	select = p.y * column;
+	if (Keyboard::push(VK_LEFT))
 	{
-		if(select % column != 0)
-			select -= 1;
 		cool = 12;
+		p.x -= 1;
+		if (p.x < 0)
+		{
+			p.x += column;
+			if (select + p.x >= static_cast<int>(player->status->second.item.size()))
+				p.y -= 1;
+		}
 	}
-	else if(Keyboard::press(VK_LEFT) && cool < 0)
+	else if (Keyboard::press(VK_LEFT) && cool < 0)
 	{
-		if(select % column != 0)
-			select -= 1;
 		cool = 4;
+		p.x -= 1;
+		if (p.x < 0)
+		{
+			p.x += column;
+			if (select + p.x >= static_cast<int>(player->status->second.item.size()))
+				p.y -= 1;
+		}
 	}
-	else if(Keyboard::push(VK_RIGHT))
+	else if (Keyboard::push(VK_RIGHT))
 	{
-		if(select % column != column - 1)
-			select += 1;
 		cool = 12;
+		p.x += 1;
+		p.x %= column;
+		if (select + p.x >= static_cast<int>(player->status->second.item.size()))
+			p.y -= 1;
 	}
-	else if(Keyboard::press(VK_RIGHT) && cool < 0)
+	else if (Keyboard::press(VK_RIGHT) && cool < 0)
 	{
-		if(select % column != column - 1)
-			select += 1;
 		cool = 4;
+		p.x += 1;
+		p.x %= column;
+		if (select + p.x >= static_cast<int>(player->status->second.item.size()))
+			p.y -= 1;
 	}
+	select = p.y * column + p.x;
+	
 	if(Keyboard::press(VK_CONTROL))
 	{
 		for(int i = 0; i < 64; ++i)

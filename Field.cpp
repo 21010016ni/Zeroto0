@@ -69,16 +69,16 @@ void Field::set(Value* t)
 	list.emplace_back(t);
 }
 
-void Field::set(std::shared_ptr<Value>& t)
-{
-	for(auto i = list.cbegin(); i != list.cend(); ++i)
-	{
-		if((*i)->pos > t->pos)
-		{
-			list.emplace(i, t);
-			return;
-		}
-	}
-	list.emplace_back(t);
-}
+//void Field::set(std::shared_ptr<Value>& t)
+//{
+//	for(auto i = list.cbegin(); i != list.cend(); ++i)
+//	{
+//		if((*i)->pos > t->pos)
+//		{
+//			list.emplace(i, t);
+//			return;
+//		}
+//	}
+//	list.emplace_back(t);
+//}
 
