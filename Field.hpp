@@ -12,8 +12,9 @@ class Field
 public:
 	static std::weak_ptr<Value> get(int pos, int range, bool force = false);
 	static std::list<std::shared_ptr<Value>>::iterator getIterator(int pos, int range, bool force = false);
-	static std::list<std::shared_ptr<Value>>::iterator getIterator(const std::shared_ptr<Value>& t);
-	static void set(Value* t);
+	static std::list<std::shared_ptr<Value>>::iterator getIterator(int pos);
+	//static std::list<std::shared_ptr<Value>>::iterator getIterator(const std::shared_ptr<Value>& t);
+	static std::shared_ptr<Value> set(Value* t);
 	static std::list<std::shared_ptr<Value>>::iterator begin() { return list.begin(); }
 	static std::list<std::shared_ptr<Value>>::const_iterator cend() { return list.cend(); }
 };

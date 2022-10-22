@@ -9,39 +9,40 @@
 #include "convert_string.hpp"
 #include "Field.hpp"
 #include "DataBase.hpp"
-#include "Display.hpp"
 #include "Inventory.hpp"
 #include "Text.hpp"
+#include "Config.hpp"
+
+#include <iostream>
+
+Display Manager::display({0,0}, Application::WindowSize, 0);
 
 void Manager::preset()
 {
 	font = LoadFontDataToHandle((const char*)u8"data/font/刻明朝18.dft");
+	back = LoadGraph((const char*)u8"data/picture/back.jpg");
 	Display::SetFont(font);
 	Icon::load("data/picture/icon.png", 16);
 	DataBase::LoadItem("data/item.dat");
 
 	Effect::load(LoadGraph("data/effect/pipo-btleffect001.png"), 5, 1, LoadSoundMem((const char*)u8"data/se/刀剣・斬る01.mp3"));
 
-	static Status player_status(10, 10, u8"data/picture/flower0497.png", 0);
-	static Status enemy_status(10, 10, u8"data/picture/flower3868.png", 1);
-
-	Field::set(new Player(0, &player_status, 10));
-	player = *Field::begin();
-	Field::set(new Object(15, &enemy_status));
+	player = Field::set(new Player(0, &DataBase::status[0], 10));
+	Field::set(new Object(15, &DataBase::status[1]))->status->second.item.emplace(0, -1);
 	static_cast<Player*>(player.get())->shortcut[0x2a] = 0;
-	//player->status->second.item.emplace(0, 10);
-	//player->status->second.item.emplace(1, 10);
-	//player->status->second.item.emplace(2, 10);
-	//player->status->second.item.emplace(3, 10);
-	//player->status->second.item.emplace(4, 10);
-	//player->status->second.item.emplace(5, 10);
-	//player->status->second.item.emplace(6, 10);
-	//player->status->second.item.emplace(7, 10);
-	//player->status->second.item.emplace(8, 10);
-	//player->status->second.item.emplace(9, 10);
-	//player->status->second.item.emplace(10, 10);
-	//player->status->second.item.emplace(11, 10);
-	//player->status->second.item.emplace(12, 10);
+	player->status->second.item.emplace(0, 10);
+	player->status->second.item.emplace(1, 10);
+	player->status->second.item.emplace(2, 10);
+	player->status->second.item.emplace(3, 10);
+	player->status->second.item.emplace(4, 10);
+	player->status->second.item.emplace(5, 10);
+	player->status->second.item.emplace(6, 10);
+	player->status->second.item.emplace(7, 10);
+	player->status->second.item.emplace(8, 10);
+	player->status->second.item.emplace(9, 10);
+	player->status->second.item.emplace(10, 10);
+	player->status->second.item.emplace(11, 10);
+	player->status->second.item.emplace(12, 10);
 
 	volume.mute &= 0b11111110;
 }
@@ -76,7 +77,7 @@ void Manager::update()
 				if (!(**i) || (*i)->status->second.flag & 1)
 				{
 					player->pos += 4;
-					auto j = Field::getIterator(player);
+					auto j = Field::getIterator(player->pos);
 					std::iter_swap(i, j);
 				}
 				else
@@ -85,6 +86,7 @@ void Manager::update()
 				}
 				// ここに接触時イベント
 			}
+			Display::shake.set(0, 8, {4.0f,0.0f});
 			player->status->second.cool = 20;	// 仮
 		}
 		else if (Keyboard::press(VK_DOWN))
@@ -94,9 +96,10 @@ void Manager::update()
 			player->pos -= 4;
 			if (i != Field::cend())
 			{
-				auto j = Field::getIterator(player);
+				auto j = Field::getIterator(player->pos);
 				std::iter_swap(i, j);
 			}
+			Display::shake.set(0, 8, {4.0f,0.0f});
 			player->status->second.cool = 20;	// 仮
 		}
 		else
@@ -121,6 +124,21 @@ void Manager::update()
 				}
 		}
 	}
+	// フィールド上にいるやつの処理
+	for(auto i = Field::begin(); i != Field::cend(); ++i)
+	{
+		if((*i)->type == Object::Type::enemy && --(*i)->status->second.cool <= 0)
+		{
+			for(const auto& j : (*i)->status->second.item)
+			{
+				if(j.first < DataBase::enemyAction.size())
+				{
+					auto target = Field::get((*i)->pos, -DataBase::enemyAction[j.first].reach);
+					target.expired() ? Action::execute(DataBase::enemyAction[j.first].id, **i) : target.lock()->execute(DataBase::enemyAction[j.first].id, **i);
+				}
+			}
+		}
+	}
 
 	TextManager::update();
 
@@ -128,17 +146,19 @@ void Manager::update()
 	BGM::update();
 	// ハンドル管理更新
 	HandleManager::update();
+	// ディスプレイ振動更新
+	Display::shake.update();
 }
 
 void Manager::draw()
 {
-	//auto it = Field::getIterator(player);
-	//++it;
+	display.DrawGraph(0, 0, back, true);
+
 	auto it = Field::cend();
 	while (it != Field::begin() && (*--it)->pos > player->pos + static_cast<Player*>(player.get())->searchRange);
 	while ((*it)->pos > player->pos && (*it)->pos <= player->pos + static_cast<Player*>(player.get())->searchRange)
 	{
-		DrawGraph(0, 0, HandleManager::get((*it)->status->first->graph, HandleManager::Type::graph), TRUE);
+		display.DrawGraph(0, 0, HandleManager::get((*it)->status->first->graph, HandleManager::Type::graph), true);
 		if (it == Field::begin())
 			break;
 		--it;
@@ -146,7 +166,7 @@ void Manager::draw()
 
 	for (auto i = Field::begin(); i != Field::cend(); ++i)
 	{
-		DrawCircle(10 + (*i)->pos * 10, 10, 8, 0xffffffff);
+		display.DrawCircle(10 + (*i)->pos * 10, 10, 8, 0xffffffff, true);
 	}
 
 	Inventory::draw(static_cast<Player*>(player.get()));

@@ -40,6 +40,8 @@ using RangeF = std::uniform_real_distribution<float>;
 
 #include <DxLib.h>
 #include "Point.hpp"
+#include "Display.hpp"
+
 class Dust :public Particle
 {
 	Point<float> pos;
@@ -53,9 +55,9 @@ class Dust :public Particle
 	}
 	void draw()const override
 	{
-		if (duration > 60)
-			DrawCircle((int)pos.x, (int)pos.y, 1, color);
-		DrawCircle((int)pos.x, (int)pos.y, 2, color);
+		if(duration > 60)
+			DrawCircle((int)pos.x + Display::shake.x(0), (int)pos.y + Display::shake.y(0), 1, color);
+		DrawCircle((int)pos.x + Display::shake.x(0), (int)pos.y + Display::shake.y(0), 2, color);
 	}
 
 public:

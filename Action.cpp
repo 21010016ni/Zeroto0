@@ -40,6 +40,7 @@ enum Key :int
 	item_self = 0x1000,
 	touch = -1,
 	killed = -2,
+	enemy_action = -0x1000,
 };
 
 std::unordered_map<int, Action::ValueSingle> Action::commonActionSingle =
@@ -52,6 +53,32 @@ std::unordered_map<int, Action::ValueSingle> Action::commonActionSingle =
 		TextManager::player.set(u8R"(\bアクション1を単独で実行\w9\e)");
 		return true;
 	}},
+	{enemy_action - 0,[](Object& u) {
+		// 前進
+		auto i = Field::getIterator(u.pos, -2, true);
+		if(i == Field::cend())
+		{
+			u.pos -= 2;
+		}
+		else
+		{
+			if(!(**i) || (*i)->status->second.flag & 1)
+			{
+				u.pos -= 2;
+				auto j = Field::getIterator(u.pos);
+				std::iter_swap(i, j);
+			}
+			else
+			{
+				u.pos = (*i)->pos + 1;
+			}
+			// ここに接触時イベント
+		}
+		u.status->second.cool = 120;	// 仮
+
+		TextManager::player.set(u8R"(\b敵が移動した\w9\e)");
+		return true;
+	}},
 };
 
 std::unordered_map<int, Action::ValueDouble> Action::commonActionDouble =
@@ -62,6 +89,14 @@ std::unordered_map<int, Action::ValueDouble> Action::commonActionDouble =
 	}},
 	{item_use + 1,[](Object&,Object&) {
 		TextManager::partner.set(u8R"(\bアクション1を対象を取って実行\w9\e)");
+		return true;
+	}},
+	{enemy_action - 0,[](Object& u,Object& t) {
+		// 攻撃
+		t.status->second.hp -= u.status->second.atk;
+		u.status->second.cool = 120;	// 仮
+
+		TextManager::player.set(u8R"(\b敵が攻撃した\w9\e)");
 		return true;
 	}},
 };

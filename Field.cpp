@@ -47,26 +47,34 @@ std::list<std::shared_ptr<Field::Value>>::iterator Field::getIterator(int pos, i
 		return list.end();
 	}
 }
-
-std::list<std::shared_ptr<Field::Value>>::iterator Field::getIterator(const std::shared_ptr<Value>& t)
+std::list<std::shared_ptr<Field::Value>>::iterator Field::getIterator(int pos)
 {
-	for(auto it = list.begin(); it != list.end(); ++it)
-		if(*it == t)
+	auto it = list.begin();
+	for(; it != list.end(); ++it)
+		if((*it)->pos == pos)
 			return it;
 	return list.end();
 }
 
-void Field::set(Value* t)
+//std::list<std::shared_ptr<Field::Value>>::iterator Field::getIterator(const std::shared_ptr<Value>& t)
+//{
+//	for(auto it = list.begin(); it != list.end(); ++it)
+//		if(*it == t)
+//			return it;
+//	return list.end();
+//}
+
+std::shared_ptr<Field::Value> Field::set(Value* t)
 {
 	for(auto i = list.cbegin(); i != list.cend(); ++i)
 	{
 		if((*i)->pos > t->pos)
 		{
-			list.emplace(i, t);
-			return;
+			return *(list.emplace(i, t));
 		}
 	}
 	list.emplace_back(t);
+	return list.back();
 }
 
 //void Field::set(std::shared_ptr<Value>& t)

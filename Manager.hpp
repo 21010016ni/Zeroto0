@@ -1,6 +1,7 @@
 #pragma once
 #include <vector>
 #include "Object.hpp"
+#include "Display.hpp"
 
 class Manager
 {
@@ -17,6 +18,8 @@ class Manager
 	};
 
 	static inline int font;
+	static inline int back;
+	static Display display;
 
 public:
 	static inline std::shared_ptr<Object> player;
