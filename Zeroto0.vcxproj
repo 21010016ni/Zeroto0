@@ -177,6 +177,7 @@
     <ClInclude Include="Inventory.hpp" />
     <ClInclude Include="Object.hpp" />
     <ClInclude Include="Particle.hpp" />
+    <ClInclude Include="ParticleDust.hpp" />
     <ClInclude Include="Point.hpp" />
     <ClInclude Include="Status.hpp" />
     <ClInclude Include="Text.hpp" />

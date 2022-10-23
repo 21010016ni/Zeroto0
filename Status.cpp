@@ -1,9 +1,12 @@
 #include "Status.hpp"
+#include "DataBase.hpp"
 
 StatusInst::StatusInst(const Status& t)
 {
 	hp = t.hp;
 	atk = t.atk;
+	speedFront = t.speedFront;
+	speedBack = t.speedBack;
 	cool = 0;
 	flag = t.flag;
 	item = t.item;

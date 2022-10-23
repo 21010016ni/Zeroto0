@@ -5,13 +5,13 @@
 
 std::vector<Item> DataBase::enemyAction =
 {
-	{u8"Enemy0", -1,-0x1000,4},
+	{u8"í èÌ", u8"", -1, 0x2000, 4},
 };
 
 std::vector<Status> DataBase::status =
 {
-	{10, 10, u8"data/picture/flower0497.png", 0},
-	{10, 10, u8"data/picture/flower3868.png", 1},
+	{10, 10, 7, 5, u8"data/picture/flower0497.png", 0},
+	{10, 10, 2, 0, u8"data/picture/flower3868.png", 0},
 };
 
 void DataBase::LoadItem(const char* FileName)
@@ -26,9 +26,9 @@ void DataBase::LoadItem(const char* FileName)
 		if (line.empty() || line.front() == '#')
 			continue;
 		boost::split(elem, line, boost::is_any_of(","));
-		if (elem.size() != 4)
+		if (elem.size() != 6)
 			continue;
-		item.emplace_back(ext::convert(elem[0]).c_str(), std::stoi(elem[1], nullptr, 16), std::stoi(elem[2]), std::stoi(elem[3]));
+		item.emplace(std::stoi(elem[0]), Item(ext::tochar(elem[1]), ext::tochar(elem[2]), std::stoi(elem[3], nullptr, 16), std::stoi(elem[4]), std::stoi(elem[5])));
 	}
 }
 

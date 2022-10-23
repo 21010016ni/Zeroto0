@@ -24,5 +24,7 @@ namespace ext
 
 	// u8string‚Ì•¶š‚ğconst char*‚Æ‚µ‚Ä•Ô‚·i•W€‚Ìc_strŠÖ”‚Íconst char8_t*j
 	const char* tochar(const std::u8string& u8);
+	// string‚Ì•¶š‚ğconst char8_t*‚Æ‚µ‚Ä•Ô‚·
+	const char8_t* tochar(const std::string& s);
 }
 

@@ -18,7 +18,6 @@ void ParticleSystem::update()
 
 void ParticleSystem::draw()
 {
-	SetDrawBlendMode(DX_BLENDMODE_ADD, 127);
 	for (const auto& i : list)
 		i->draw();
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);

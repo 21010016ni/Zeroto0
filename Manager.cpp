@@ -1,6 +1,5 @@
 ﻿#include "Manager.hpp"
 #include <DxLib.h>
-#include "Particle.hpp"
 #include "Icon.hpp"
 #include "BGM.hpp"
 #include "Input.hpp"
@@ -12,6 +11,7 @@
 #include "Inventory.hpp"
 #include "Text.hpp"
 #include "Config.hpp"
+#include "ParticleDust.hpp"
 
 #include <iostream>
 
@@ -34,15 +34,22 @@ void Manager::preset()
 	player->status->second.item.emplace(1, 10);
 	player->status->second.item.emplace(2, 10);
 	player->status->second.item.emplace(3, 10);
-	player->status->second.item.emplace(4, 10);
-	player->status->second.item.emplace(5, 10);
-	player->status->second.item.emplace(6, 10);
-	player->status->second.item.emplace(7, 10);
-	player->status->second.item.emplace(8, 10);
-	player->status->second.item.emplace(9, 10);
-	player->status->second.item.emplace(10, 10);
-	player->status->second.item.emplace(11, 10);
-	player->status->second.item.emplace(12, 10);
+	player->status->second.item.emplace(100, 10);
+	player->status->second.item.emplace(101, 10);
+	player->status->second.item.emplace(102, 10);
+	player->status->second.item.emplace(103, 10);
+	player->status->second.item.emplace(200, 10);
+	player->status->second.item.emplace(201, 10);
+	player->status->second.item.emplace(202, 10);
+	player->status->second.item.emplace(203, 10);
+	player->status->second.item.emplace(300, 10);
+	player->status->second.item.emplace(301, 10);
+	player->status->second.item.emplace(302, 10);
+	player->status->second.item.emplace(303, 10);
+	player->status->second.item.emplace(304, 10);
+	player->status->second.item.emplace(305, 10);
+	player->status->second.item.emplace(400, 10);
+	player->status->second.item.emplace(401, 10);
 
 	volume.mute &= 0b11111110;
 }
@@ -67,16 +74,16 @@ void Manager::update()
 		else if (Keyboard::press(VK_UP))
 		{
 			// 前進
-			auto i = Field::getIterator(player->pos, 4, true);
+			auto i = Field::getIterator(player->pos, player->status->second.speedFront, true);
 			if (i == Field::cend())
 			{
-				player->pos += 4;
+				player->pos += player->status->second.speedFront;
 			}
 			else
 			{
 				if (!(**i) || (*i)->status->second.flag & 1)
 				{
-					player->pos += 4;
+					player->pos += player->status->second.speedFront;
 					auto j = Field::getIterator(player->pos);
 					std::iter_swap(i, j);
 				}
@@ -92,8 +99,8 @@ void Manager::update()
 		else if (Keyboard::press(VK_DOWN))
 		{
 			// 後退
-			auto i = Field::getIterator(player->pos, -4, true);
-			player->pos -= 4;
+			auto i = Field::getIterator(player->pos, -player->status->second.speedBack, true);
+			player->pos -= player->status->second.speedBack;
 			if (i != Field::cend())
 			{
 				auto j = Field::getIterator(player->pos);
@@ -109,16 +116,20 @@ void Manager::update()
 				if (Keyboard::press(0x30 + i))
 				{
 					int id = static_cast<Player*>(player.get())->shortcut[i];
-					if (id != -1 && id < DataBase::item.size())
+					if (id != -1)
 					{
-						auto item = player->status->second.item.find(id);
-						if (item != player->status->second.item.cend())
+						auto item = DataBase::item.find(id);
+						if(item != DataBase::item.end())
 						{
-							auto target = Field::get(player->pos, DataBase::item[id].reach);
-							if ((target.expired() ? Action::execute(DataBase::item[id].id, *player) : target.lock()->execute(DataBase::item[id].id, *player)) && item->second != -1)
-								if (--item->second == 0)
-									player->status->second.item.erase(item);
-							player->status->second.cool = 20;	// 仮
+							auto playerItem = player->status->second.item.find(id);
+							if(playerItem != player->status->second.item.cend())
+							{
+								auto target = Field::get(player->pos, item->second.reach);
+								if((target.expired() ? Action::execute(item->second.id, *player) : target.lock()->execute(item->second.id, *player)) && playerItem->second != -1)
+									if(--playerItem->second == 0)
+										player->status->second.item.erase(playerItem);
+								player->status->second.cool = 20;	// 仮
+							}
 						}
 					}
 				}
@@ -139,6 +150,10 @@ void Manager::update()
 			}
 		}
 	}
+
+	ParticleSystem::update();
+	if(!std::uniform_int_distribution{0,16}(mt))
+		ParticleSystem::add<Dust>(1);
 
 	TextManager::update();
 

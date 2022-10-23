@@ -25,3 +25,8 @@ const char* ext::tochar(const std::u8string& u8)
 	return reinterpret_cast<const char*>(u8.c_str());
 }
 
+const char8_t* ext::tochar(const std::string& s)
+{
+	return reinterpret_cast<const char8_t*>(s.c_str());
+}
+

@@ -5,7 +5,7 @@
 #include "Icon.hpp"
 #include "convert_string.hpp"
 
-Display Inventory::display({10,10}, {494,540}, 1);
+Display Inventory::display({10,10}, {260,540}, 1);
 bool Inventory::active = false;
 int Inventory::column = 3;
 
@@ -179,10 +179,11 @@ void Inventory::controll(Player* player)
 	{
 		auto it = player->status->second.item.begin();
 		std::advance(it, select);
-		if(it->first < DataBase::item.size())
+		auto item = DataBase::item.find(it->first);
+		if(item != DataBase::item.end())
 		{
-			auto target = Field::get(player->pos, DataBase::item[it->first].reach);
-			if((target.expired() ? Action::execute(DataBase::item[it->first].id, *player) : target.lock()->execute(DataBase::item[it->first].id, *player)) && it->second != -1)
+			auto target = Field::get(player->pos, item->second.reach);
+			if((target.expired() ? Action::execute(item->second.id, *player) : target.lock()->execute(item->second.id, *player)) && it->second != -1)
 				if(--it->second == 0)
 					player->status->second.item.erase(it);
 			player->status->second.cool = 20;	// 仮
@@ -197,6 +198,7 @@ void Inventory::draw(const Player* player)
 	{
 		int num = 0;
 		Point<int> boxSize(26, 180);
+		display.DrawBox(0, display.siz.y - 48, {48,display.siz.x}, 0xff888888, true);
 		if(player->status->second.item.empty())
 		{
 			display.DrawBox(0, 0, boxSize, 0xff888888, true);
@@ -207,11 +209,12 @@ void Inventory::draw(const Player* player)
 		{
 			for(const auto& i : player->status->second.item)
 			{
-				if(i.first < DataBase::item.size())
+				auto item = DataBase::item.find(i.first);
+				if(item != DataBase::item.end())
 				{
 					display.DrawBox(boxSize.x * (num % column), boxSize.y * (num / column), boxSize, 0xff888888, true);
-					display.DrawIcon(boxSize.x * (num % column) + 1, boxSize.y * (num / column) + 1, DataBase::item[i.first].icon);
-					display.DrawRawString(boxSize.x * (num % column) + boxSize.y + 3, boxSize.y * (num / column) + 4, DataBase::item[i.first].name, 0xffffffff);
+					display.DrawIcon(boxSize.x * (num % column) + 1, boxSize.y * (num / column) + 1, item->second.icon);
+					display.DrawRawString(boxSize.x * (num % column) + boxSize.y + 3, boxSize.y * (num / column) + 4, item->second.name, 0xffffffff);
 					if(i.second != -1)
 						display.DrawRawString(boxSize.x * ((num % column) + 1) - 5, boxSize.y * (num / column) + 4, ext::convert(std::to_string(i.second)), 0xffffffff, Ref::right);
 					display.DrawBox(boxSize.x * (num % column), boxSize.y * (num / column), boxSize, 0xff6a6a6a, false);
@@ -220,11 +223,14 @@ void Inventory::draw(const Player* player)
 						SetDrawBlendMode(DX_BLENDMODE_ADD, 64);
 						display.DrawBox(boxSize.x * (num % column), boxSize.y * (num / column), boxSize, 0xffffffff, true);
 						SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
+
+						display.DrawString(3, display.siz.y - 44, item->second.lore, 0xffffffff);
 					}
 					++num;
 				}
 			}
 		}
+		display.DrawBox(0, display.siz.y - 48, {48,display.siz.x}, 0xff6a6a6a, false);
 		// ショートカット表示
 		if(Keyboard::press(VK_CONTROL))
 		{
@@ -236,7 +242,7 @@ void Inventory::draw(const Player* player)
 					DrawBox(500 + (qwerty[i] % 100) * 13, 30 + (qwerty[i] / 100) * 26, 500 + (qwerty[i] % 100 + 2) * 13, 30 + (qwerty[i] / 100 + 1) * 26, 0xff6a6a6a, FALSE);
 					if(player->shortcut[i] != -1)
 					{
-						Icon::draw(500 + (qwerty[i] % 100) * 13 + 1, 30 + (qwerty[i] / 100) * 26 + 1, DataBase::item[player->shortcut[i]].icon);
+						Icon::draw(500 + (qwerty[i] % 100) * 13 + 1, 30 + (qwerty[i] / 100) * 26 + 1, DataBase::item.find(player->shortcut[i])->second.icon);
 					}
 				}
 			}
