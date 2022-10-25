@@ -24,6 +24,10 @@ void Manager::preset()
 	Display::SetFont(font);
 	Icon::load("data/picture/icon.png", 16);
 	DataBase::LoadItem("data/item.dat");
+	BGM::set(u8"data/bgm/夢.mp3");
+	BGM::set(u8"data/bgm/水に沈むピアノ.mp3");
+	BGM::set(u8"data/bgm/レイト・ナイト・スノウ.mp3");
+	BGM::set(u8"data/bgm/深海魚の遊泳.mp3");
 
 	Effect::load(LoadGraph("data/effect/pipo-btleffect001.png"), 5, 1, LoadSoundMem((const char*)u8"data/se/刀剣・斬る01.mp3"));
 
@@ -57,16 +61,24 @@ void Manager::preset()
 	player->status->second.item.emplace(403, 10);
 	player->status->second.item.emplace(404, 10);
 
-	volume.mute &= 0b11111110;
+	volume.mute &= 0b11111111;
+	volume.bgm = 128;
 
-	gameState = GameState::play;
+	BGM::volume = volume.Bgm() ? volume.bgm : 0;
+
+	BGM::play(0);
+	gameState = GameState::title;
 }
 
 void Manager::update()
 {
 	if(gameState == GameState::title)
 	{
-
+		if(CheckHitKeyAll() == -1)
+		{
+			BGM::play(1);
+			gameState = GameState::play;
+		}
 	}
 	else if(gameState == GameState::play)
 	{
@@ -210,6 +222,7 @@ void Manager::draw()
 	else if(gameState == GameState::play)
 	{
 		display.DrawGraph(0, 0, back, true);
+		display.DrawGraph(-100, 20, HandleManager::get(player->status->first->graph, HandleManager::Type::graph), true);
 
 		auto it = Field::cend();
 		while(it != Field::begin() && (*--it)->pos > player->pos + static_cast<Player*>(player.get())->searchRange);

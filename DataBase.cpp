@@ -11,7 +11,7 @@ std::vector<Item> DataBase::enemyAction =
 std::vector<Status> DataBase::status =
 {
 	// –¼‘O,HP,UŒ‚—Í,‘O•ûˆÚ“®‘¬“x,Œã•ûˆÚ“®‘¬“x,‰æ‘œ
-	{u8"ƒ[ƒ", 20, 10, 7, 5, u8"data/picture/flower0497.png", 0},
+	{u8"ƒ[ƒ", 20, 10, 7, 5, u8"data/picture/sibyl.png", 0},
 	{u8"’¾–Ù‚Ì‰Ô", 10, 1, 2, 0, u8"data/picture/flower3868.png", 0},
 };
 
