@@ -1,11 +1,19 @@
 #pragma once
 #include <string>
 #include <map>
-#include "Text.hpp"
 
 class Status
 {
 public:
+	enum class State :char
+	{
+		poison,
+		saturation,
+		bright,
+		arousal,
+	};
+
+	std::u8string name;
 	int hp;
 	int atk;
 	int speedFront;
@@ -14,7 +22,7 @@ public:
 
 	unsigned char flag;	// 最下位ビットは通行可不可の判定に用いる　それ以外は自由
 
-	Status(int hp, int atk, int speedFront, int speedBack, const char8_t* graph, unsigned char flag) :hp(hp), atk(atk), speedFront(speedFront), speedBack(speedBack), graph(graph), flag(flag) {}
+	Status(const char8_t* name, int hp, int atk, int speedFront, int speedBack, const char8_t* graph, unsigned char flag) :name(name), hp(hp), atk(atk), speedFront(speedFront), speedBack(speedBack), graph(graph), flag(flag) {}
 	
 	std::map<int, int> item;	// 敵の場合ドロップアイテム、プレイヤーの場合引継ぎアイテム
 };
@@ -28,9 +36,10 @@ public:
 	int speedFront;
 	int speedBack;
 
-	unsigned char flag;
+	unsigned char flag;	// -,-,-,-, -,次タイミングで削除,接触済み,通行不可
 
 	std::map<int, int> item;	// 所持アイテム　敵はこれをStatusからコピーして受け取り、ドロップする
+	std::map<Status::State, int> state;	// 現在状態、secondは時間
 
 	StatusInst(const Status& t);
 

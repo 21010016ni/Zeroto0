@@ -22,6 +22,7 @@ public:
 	Object(int pos, Status* status) :type(Type::enemy), pos(pos), status(new std::pair<Status*, StatusInst>(status, StatusInst(*status))) {}
 
 	bool execute(int id, Object& user);
+	void damage(int v);
 
 	operator bool()const noexcept { return static_cast<bool>(status); }
 };
@@ -29,10 +30,11 @@ public:
 class Player :public Object
 {
 public:
+	int partner;
 	int searchRange;
 	std::vector<int> shortcut;
 
-	Player(int pos, Status* status, int searchRange) :Object(pos, status), searchRange(searchRange)
+	Player(int pos, Status* status, int partner, int searchRange) :Object(pos, status), partner(partner), searchRange(searchRange)
 	{
 		shortcut.resize(64, -1);
 		type = Type::player;

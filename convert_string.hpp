@@ -15,10 +15,8 @@ std::u8string operator<<=(std::u8string& u8, const std::string& s);
 
 namespace ext
 {
-
 	// u8string‚ðstring‚É•ÏŠ·‚µ‚½‚à‚Ì‚ð•Ô‚·
 	std::string convert(const std::u8string& u8);
-
 	// string‚ðu8string‚É•ÏŠ·‚µ‚½‚à‚Ì‚ð•Ô‚·
 	std::u8string convert(const std::string& s);
 
@@ -26,5 +24,10 @@ namespace ext
 	const char* tochar(const std::u8string& u8);
 	// string‚Ì•¶Žš‚ðconst char8_t*‚Æ‚µ‚Ä•Ô‚·
 	const char8_t* tochar(const std::string& s);
+
+	// ”’l‚ðu8string‚É•ÏŠ·‚µ‚Ä•Ô‚·
+	std::u8string to_u8string(int v);
+	// u8string‚Ì”’l‚ðint‚É•ÏŠ·‚µ‚Ä•Ô‚·
+	int stoi(const std::u8string& u8);
 }
 

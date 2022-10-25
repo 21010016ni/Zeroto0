@@ -5,7 +5,7 @@
 #include "Icon.hpp"
 #include "convert_string.hpp"
 
-Display Inventory::display({10,10}, {260,540}, 1);
+Display Inventory::display({10,10}, {308,540}, 1);
 bool Inventory::active = false;
 int Inventory::column = 3;
 

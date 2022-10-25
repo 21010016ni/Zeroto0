@@ -22,6 +22,15 @@ class Manager
 	static Display display;
 
 public:
+	enum class GameState
+	{
+		title,
+		play,
+		over,
+	};
+
+	static inline GameState gameState;
+
 	static inline std::shared_ptr<Object> player;
 
 	static inline Volume volume;

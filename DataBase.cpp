@@ -10,8 +10,9 @@ std::vector<Item> DataBase::enemyAction =
 
 std::vector<Status> DataBase::status =
 {
-	{10, 10, 7, 5, u8"data/picture/flower0497.png", 0},
-	{10, 10, 2, 0, u8"data/picture/flower3868.png", 0},
+	// 名前,HP,攻撃力,前方移動速度,後方移動速度,画像
+	{u8"ゼロ", 20, 10, 7, 5, u8"data/picture/flower0497.png", 0},
+	{u8"沈黙の花", 10, 1, 2, 0, u8"data/picture/flower3868.png", 0},
 };
 
 void DataBase::LoadItem(const char* FileName)

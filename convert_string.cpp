@@ -30,3 +30,13 @@ const char8_t* ext::tochar(const std::string& s)
 	return reinterpret_cast<const char8_t*>(s.c_str());
 }
 
+std::u8string ext::to_u8string(int v)
+{
+	return convert(std::to_string(v));
+}
+
+int ext::stoi(const std::u8string& u8)
+{
+	return std::stoi(convert(u8));
+}
+
