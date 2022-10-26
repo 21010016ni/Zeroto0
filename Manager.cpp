@@ -32,7 +32,7 @@ void Manager::preset()
 
 	Effect::load(LoadGraph("data/effect/pipo-btleffect001.png"), 5, 1, LoadSoundMem((const char*)u8"data/se/刀剣・斬る01.mp3"));
 
-	player = Field::set(new Player(0, &DataBase::status[0], 0, 10));
+	player = Field::set(new Player(0, &DataBase::status[0], 0, 30));
 	Field::set(new Object(15, &DataBase::status[1]))->status->second.item.emplace(0, -1);
 	static_cast<Player*>(player.get())->shortcut[0x2a] = 0;
 	player->status->second.item.emplace(0, -1);
@@ -62,7 +62,7 @@ void Manager::preset()
 	player->status->second.item.emplace(403, 10);
 	player->status->second.item.emplace(404, 10);
 
-	volume.mute &= 0b11111111;
+	volume.mute &= 0b11111110;
 	volume.bgm = 128;
 
 	BGM::volume = volume.Bgm() ? volume.bgm : 0;
@@ -267,12 +267,13 @@ void Manager::draw()
 	}
 	else if(gameState == GameState::play)
 	{
+		int search = static_cast<Player*>(player.get())->searchRange;
 		display.DrawGraph(0, 0, back, true);
 		//display.DrawGraph(-100, 20, HandleManager::get(player->status->first->graph, HandleManager::Type::graph), true);
 
 		auto it = Field::cend();
-		while(it != Field::begin() && (*--it)->pos > player->pos + static_cast<Player*>(player.get())->searchRange);
-		while((*it)->pos > player->pos && (*it)->pos <= player->pos + static_cast<Player*>(player.get())->searchRange)
+		while(it != Field::begin() && (*--it)->pos > player->pos + search);
+		while((*it)->pos > player->pos && (*it)->pos <= player->pos + search)
 		{
 			display.DrawGraph(0, 0, HandleManager::get((*it)->status->first->graph, HandleManager::Type::graph), true);
 			if(it == Field::begin())
@@ -289,14 +290,25 @@ void Manager::draw()
 		ui.DrawRawString(420, 8, u8"現在地：", 0xffa4a4a4);
 		ui.DrawRawString(495, 8, u8"病院", 0xffa4a4a4);
 		ui.DrawRawString(550, 8, u8"(" + ext::to_u8string(player->pos) + u8")", 0xffa4a4a4);
-		ui.DrawCircle(10, 50, 6, 0xffa4a4a4, true);
+		for(int i = 0; i < search; ++i)
+		{
+			ui.DrawBox(8 + i * 7, 42, {19,7}, 0xffa4a4a4, false);
+		}
 		for(auto i = Field::begin(); i != Field::cend(); ++i)
 		{
-			if((*i)->type == Object::Type::player || (*i)->pos < player->pos)
+			if((*i)->pos < player->pos)
 				continue;
-			else if((*i)->pos > player->pos + static_cast<Player*>(player.get())->searchRange)
+			if((*i)->pos > player->pos + search)
 				break;
-			ui.DrawCircle(10 + ((*i)->pos - player->pos) * 10, 50, 8, 0xffffffff, true);
+			switch((*i)->type)
+			{
+			case Object::Type::player:
+				ui.DrawCircle(11 + ((*i)->pos - player->pos) * 7, 51, 6, 0xffa4a4a4, true);
+				break;
+			case Object::Type::enemy:
+				ui.DrawCircle(11 + ((*i)->pos - player->pos) * 7, 51, 7, 0xffff0000, true);
+				break;
+			}
 		}
 
 		Inventory::draw(static_cast<Player*>(player.get()));
