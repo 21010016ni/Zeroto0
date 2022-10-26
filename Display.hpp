@@ -91,16 +91,16 @@ public:
 	{
 		DxLib::DrawCircle(pos.x + x + shake.x(level), pos.y + y + shake.y(level), r, color, fill);
 	}
-	void DrawGraph(const Point<int>& dst, int handle, bool TransFlag = true)
+	void DrawGraph(const Point<int>& dst, int handle, bool TransFlag = true)const
 	{
 		DxLib::DrawGraph(pos.x + dst.x + shake.x(level), pos.y + dst.y + shake.y(level), handle, TransFlag);
 	}
-	void DrawGraph(int x, int y, int handle, bool TransFlag = true)
+	void DrawGraph(int x, int y, int handle, bool TransFlag = true)const
 	{
 		DxLib::DrawGraph(pos.x + x + shake.x(level), pos.y + y + shake.y(level), handle, TransFlag);
 	}
-	void DrawIcon(const Point<int>& dst, int id);
-	void DrawIcon(int x, int y, int id);
+	void DrawIcon(const Point<int>& dst, int id)const;
+	void DrawIcon(int x, int y, int id)const;
 	void DrawString(const Point<int>& dst, const std::u8string& text, unsigned int color)const;
 	void DrawString(int x, int y, const std::u8string& text, unsigned int color)const;
 	void DrawString(const Point<int>& dst, const std::u8string& text, unsigned int color, int font)const;

@@ -30,6 +30,7 @@ public:
 			list.emplace_back(new T);
 		}
 	}
+	static void reset();
 	static void update();
 	static void draw();
 };

@@ -91,10 +91,15 @@ short Inventory::qwerty[64] =
 
 void Inventory::controll(Player* player)
 {
-	--cool;
+	if(Keyboard::push(VK_SHIFT))
+	{
+		Inventory::active = false;
+		return;
+	}
 	if(player->status->second.item.empty())
 		return;
 	Point<int> p(select / column, select % column);
+	--cool;
 	if (Keyboard::push(VK_UP))
 	{
 		cool = 12;

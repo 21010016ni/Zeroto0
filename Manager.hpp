@@ -20,6 +20,9 @@ class Manager
 	static inline int font;
 	static inline int back;
 	static Display display;
+	static Display ui;
+
+	static inline int var[2] = {0,0};
 
 public:
 	enum class GameState
@@ -36,7 +39,7 @@ public:
 	static inline Volume volume;
 
 	static void preset();
-	static void update();
+	static bool update();
 	static void draw();
 };
 

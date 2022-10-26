@@ -83,7 +83,8 @@ std::unordered_map<int, Action::ValueSingle> Action::commonActionSingle =
 		return true;
 	}},
 	{item_use + 103,[](Object& u) {	// 毒薬
-		u.status->second.hp -= 80;
+		if((u.status->second.hp -= 80) <= 0)
+			u.status->second.flag |= 4;
 		TextManager::player.set(u8R"(\b毒薬を飲み干し、80のダメージを受けた。\w9\e)");
 		u.status->second.cool = 60;
 		return true;
@@ -193,7 +194,8 @@ std::unordered_map<int, Action::ValueDouble> Action::commonActionDouble =
 		return true;
 	}},
 	{item_use + 103,[](Object& u,Object& t) {	// 毒薬
-		t.status->second.hp -= 20;
+		if((t.status->second.hp -= 20) <= 0)
+			t.status->second.flag |= 4;
 		TextManager::partner.set(u8R"(\b毒薬を投げつけ、20のダメージを与えた。\w9\e)");
 		u.status->second.cool = 60;
 		return true;

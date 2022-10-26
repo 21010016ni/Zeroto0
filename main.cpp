@@ -42,7 +42,8 @@ int Application::Main(HINSTANCE, HINSTANCE, LPSTR, int)
 		Mouse::update();
 		// 処理ブロック
 		//----------------------------------------------------------------<<
-		Manager::update();
+		if(!Manager::update())
+			break;
 
 		// スクリーンショット
 		if(Keyboard::push(VK_F7))

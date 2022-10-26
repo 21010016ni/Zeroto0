@@ -16,6 +16,7 @@
 #include <iostream>
 
 Display Manager::display({0,0}, Application::WindowSize, 0);
+Display Manager::ui({0,0}, Application::WindowSize, 2);
 
 void Manager::preset()
 {
@@ -67,30 +68,69 @@ void Manager::preset()
 	BGM::volume = volume.Bgm() ? volume.bgm : 0;
 
 	BGM::play(0);
+	ParticleSystem::add<Dust>(20);
 	gameState = GameState::title;
 }
 
-void Manager::update()
+bool Manager::update()
 {
+	// タイトル画面処理
 	if(gameState == GameState::title)
 	{
-		if(CheckHitKeyAll() == -1)
+		--var[0];
+		if(Keyboard::push(VK_UP))
 		{
-			BGM::play(1);
-			gameState = GameState::play;
+			if((--var[1]) < 0)
+				var[1] = 2;
+			var[0] = 12;
+		}
+		else if(Keyboard::press(VK_UP) && var[0] <= 0)
+		{
+			if((--var[1]) < 0)
+				var[1] = 4;
+			var[0] = 4;
+		}
+		else if(Keyboard::push(VK_DOWN))
+		{
+			var[1] = ++var[1] % 3;
+			var[0] = 12;
+		}
+		else if(Keyboard::press(VK_DOWN) && var[0] <= 0)
+		{
+			var[1] = ++var[1] % 3;
+			var[0] = 4;
+		}
+		if(Keyboard::push(VK_SPACE))
+		{
+			if(var[1] == 0)
+			{
+				var[1] = 1;
+				BGM::play(1);
+				ParticleSystem::reset();
+				ParticleSystem::add<Dust>(20);
+				gameState = GameState::play;
+			}
+			else if(var[1] == 1)
+			{
+
+			}
+			else if(var[1] == 2)
+			{
+				return false;
+			}
 		}
 	}
+	// ゲームメイン画面処理
 	else if(gameState == GameState::play)
 	{
-		--player->status->second.cool;
+		// プレイヤーのクールタイム減少
+		var[0] = player->status->second.cool = __max(player->status->second.cool - 1, 0);
+		// インベントリが開いている場合、そちらに操作を吸わせる
 		if(Inventory::active)
 		{
-			if(Keyboard::push(VK_SHIFT))
-			{
-				Inventory::active = false;
-			}
 			Inventory::controll(static_cast<Player*>(player.get()));
 		}
+		// どこにも操作を吸わせる先が無かったらメイン操作
 		else if(player->status->second.cool <= 0)
 		{
 			if(Keyboard::push(VK_SHIFT))
@@ -193,6 +233,8 @@ void Manager::update()
 			}
 			++i;
 		}
+		if(var[0] != player->status->second.cool)
+			var[1] = player->status->second.cool;
 	}
 	else if(gameState == GameState::over)
 	{
@@ -211,18 +253,22 @@ void Manager::update()
 	HandleManager::update();
 	// ディスプレイ振動更新
 	Display::shake.update();
+
+	return true;
 }
 
 void Manager::draw()
 {
 	if(gameState == GameState::title)
 	{
-
+		ui.DrawRawString(1000, 300, u8"Start", (var[1] == 0) ? 0xffffffff : 0xffa4a4a4, Ref::right);
+		ui.DrawRawString(900, 380, u8"Config", (var[1] == 1) ? 0xffffffff : 0xffa4a4a4, Ref::right);
+		ui.DrawRawString(800, 460, u8"Quit", (var[1] == 2) ? 0xffffffff : 0xffa4a4a4, Ref::right);
 	}
 	else if(gameState == GameState::play)
 	{
 		display.DrawGraph(0, 0, back, true);
-		display.DrawGraph(-100, 20, HandleManager::get(player->status->first->graph, HandleManager::Type::graph), true);
+		//display.DrawGraph(-100, 20, HandleManager::get(player->status->first->graph, HandleManager::Type::graph), true);
 
 		auto it = Field::cend();
 		while(it != Field::begin() && (*--it)->pos > player->pos + static_cast<Player*>(player.get())->searchRange);
@@ -234,9 +280,23 @@ void Manager::draw()
 			--it;
 		}
 
+		// HUD
+		ui.DrawBox(5, 5, {26,400}, 0xff134b13, true);
+		ui.DrawBox(5, 5, {26,player->status->second.hp * 400 / player->status->first->hp}, 0xff88af88, true);
+		ui.DrawBox(5, 5, {26,400}, 0xff666666, false);
+		ui.DrawBox(5, 31, {5,(var[1] - player->status->second.cool) * 400 / var[1]}, 0x968412, true);
+		ui.DrawRawString(400, 8, ext::to_u8string(player->status->second.hp), 0xffffffff, Ref::right);
+		ui.DrawRawString(420, 8, u8"現在地：", 0xffa4a4a4);
+		ui.DrawRawString(495, 8, u8"病院", 0xffa4a4a4);
+		ui.DrawRawString(550, 8, u8"(" + ext::to_u8string(player->pos) + u8")", 0xffa4a4a4);
+		ui.DrawCircle(10, 50, 6, 0xffa4a4a4, true);
 		for(auto i = Field::begin(); i != Field::cend(); ++i)
 		{
-			display.DrawCircle(10 + (*i)->pos * 10, 10, 8, 0xffffffff, true);
+			if((*i)->type == Object::Type::player || (*i)->pos < player->pos)
+				continue;
+			else if((*i)->pos > player->pos + static_cast<Player*>(player.get())->searchRange)
+				break;
+			ui.DrawCircle(10 + ((*i)->pos - player->pos) * 10, 50, 8, 0xffffffff, true);
 		}
 
 		Inventory::draw(static_cast<Player*>(player.get()));

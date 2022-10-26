@@ -2,6 +2,11 @@
 #include <random>
 #include <DxLib.h>
 
+void ParticleSystem::reset()
+{
+	list.clear();
+}
+
 void ParticleSystem::update()
 {
 	for (auto i = list.begin(); i != list.end();)

@@ -63,11 +63,11 @@ int Display::Shake::x(int l)const
 		return 0;
 }
 
-void Display::DrawIcon(const Point<int>& dst, int id)
+void Display::DrawIcon(const Point<int>& dst, int id)const
 {
 	Icon::draw(pos + dst + shake.get(level), id);
 }
-void Display::DrawIcon(int x, int y, int id)
+void Display::DrawIcon(int x, int y, int id)const
 {
 	Icon::draw(pos.x + x + shake.x(level), pos.y + y + shake.y(level), id);
 }
