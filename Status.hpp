@@ -2,6 +2,7 @@
 #include <string>
 #include <map>
 #include <vector>
+#include "Action.hpp"
 
 class Status
 {
@@ -33,7 +34,11 @@ public:
 
 	std::map<int, int> item;	// 敵の場合ドロップアイテム、プレイヤーの場合引継ぎアイテム
 
-	Status(const char8_t* name, int hp, int atk, int speedFront, int speedBack, int range, const char8_t* graph, unsigned char flag, std::map<int, int> item) :type(Type::undefined), name(name), hp(hp), atk(atk), speedFront(speedFront), speedBack(speedBack), range(range), graph(graph), flag(flag), item(item) {}
+	Action* action;
+
+	Status(const char8_t* name, int hp, int atk, int speedFront, int speedBack, int range, const char8_t* graph, unsigned char flag, std::map<int, int> item, Action* action) :type(Type::undefined), name(name), hp(hp), atk(atk), speedFront(speedFront), speedBack(speedBack), range(range), graph(graph), flag(flag), item(item), action(action)
+	{
+	}
 };
 
 class Player :public Status
@@ -42,7 +47,7 @@ public:
 	int partner;
 	std::vector<int> shortcut;
 
-	Player(const char8_t* name, int hp, int atk, int speedFront, int speedBack, int range, const char8_t* graph, unsigned char flag, std::map<int, int> item, int partner) :Status(name, hp, atk, speedFront, speedBack, range, graph, flag, item), partner(partner)
+	Player(const char8_t* name, int hp, int atk, int speedFront, int speedBack, int range, const char8_t* graph, unsigned char flag, std::map<int, int> item, int partner) :Status(name, hp, atk, speedFront, speedBack, range, graph, flag, item, {}), partner(partner)
 	{
 		type = Type::player;
 		shortcut.resize(64, -1);
@@ -54,7 +59,7 @@ class Enemy :public Status
 public:
 	int action;
 
-	Enemy(const char8_t* name, int hp, int atk, int speedFront, int speedBack, int range, const char8_t* graph, unsigned char flag, std::map<int, int> item, int action) :Status(name, hp, atk, speedFront, speedBack, range, graph, flag, item), action(action)
+	Enemy(const char8_t* name, int hp, int atk, int speedFront, int speedBack, int range, const char8_t* graph, unsigned char flag, std::map<int, int> item, int action, Action* reaction) :Status(name, hp, atk, speedFront, speedBack, range, graph, flag, item, reaction), action(action)
 	{
 		type = Type::enemy;
 	}

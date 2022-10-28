@@ -91,7 +91,7 @@ void Text::draw()const
 {
 	if (active)
 	{
-		SetDrawBlendMode(DX_BLENDMODE_ALPHA, 127);
+		SetDrawBlendMode(DX_BLENDMODE_ALPHA, 196);
 		display.DrawBox(0, 0, display.siz, 0xff888888, true);
 		SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 		display.DrawString(4, 4, drawText, 0xffffffff);

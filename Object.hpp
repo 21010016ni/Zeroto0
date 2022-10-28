@@ -1,12 +1,9 @@
 #pragma once
 #include <memory>
-#include "Action.hpp"
 #include "Status.hpp"
 
 class Object
 {
-	Action action;
-
 public:
 	std::unique_ptr<std::pair<Status*, StatusInst>> status;
 	int pos;

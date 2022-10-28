@@ -15,6 +15,14 @@ bool Action::execute(int id, Object& user, Object& target)
 	return i->second(user, target);
 }
 
+bool Action::s_execute(int id, Object& user, Object& target)
+{
+	auto i = commonActionDouble.find(id);
+	if (i == commonActionDouble.end())
+		return execute(id, user);
+	return i->second(user, target);
+}
+
 bool Action::execute(int id, Object& user)
 {
 	auto i = commonActionSingle.find(id);

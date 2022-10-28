@@ -4,7 +4,10 @@
 
 bool Object::execute(int id, Object& user)
 {
-	return action.execute(id, user, *this);
+	if (status->first->action != nullptr)
+		return status->first->action->execute(id, user, *this);
+	else
+		return Action::s_execute(id, user, *this);
 }
 
 void Object::damage(int v)

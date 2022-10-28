@@ -1,13 +1,21 @@
 #pragma once
 #include <string>
 #include <list>
+#include "Display.hpp"
 
 class Popup
 {
-	static inline std::list<std::pair<int,std::u8string>> value;
+	struct Data
+	{
+		int time;
+		std::u8string left;
+		std::u8string right;
+	};
+	static inline std::list<Data> value;
+	static Display display;
 
 public:
-	static void push(int time, std::u8string text);
+	static void push(int time, std::u8string left, std::u8string right = u8"");
 	static void update();
 	static void draw();
 };

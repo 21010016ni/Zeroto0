@@ -19,9 +19,9 @@ class Action
 	static std::unordered_map<int, ValueSingle> commonActionSingle;
 	static std::unordered_map<int, ValueDouble> commonActionDouble;
 
+public:
 	std::unordered_map<int, ValueDouble> action;
 
-public:
 	enum Key :int
 	{
 		item_use = 0x0000,
@@ -31,7 +31,10 @@ public:
 		killed = -4,
 	};
 
+	Action(std::unordered_map<int, ValueDouble> action) :action(action) {};
+
 	static bool execute(int id, Object& user);
 	bool execute(int id, Object& user, Object& target);
+	static bool s_execute(int id, Object& user, Object& target);
 };
 

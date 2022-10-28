@@ -12,6 +12,7 @@
 #include "Text.hpp"
 #include "Config.hpp"
 #include "Particle.hpp"
+#include "Popup.hpp"
 
 #include <iostream>
 
@@ -43,7 +44,7 @@ void Manager::preset()
 	player->status->second.item.emplace(2, -1);
 	player->status->second.item.emplace(3, -1);
 	player->status->second.item.emplace(100, 10);
-	player->status->second.item.emplace(101, -1);
+	//player->status->second.item.emplace(101, -1);
 	player->status->second.item.emplace(102, 10);
 	player->status->second.item.emplace(103, 10);
 	player->status->second.item.emplace(104, 10);
@@ -53,12 +54,6 @@ void Manager::preset()
 	player->status->second.item.emplace(201, 10);
 	player->status->second.item.emplace(202, 10);
 	player->status->second.item.emplace(203, 10);
-	player->status->second.item.emplace(300, 10);
-	player->status->second.item.emplace(301, 10);
-	player->status->second.item.emplace(302, 10);
-	player->status->second.item.emplace(303, 10);
-	player->status->second.item.emplace(304, 10);
-	player->status->second.item.emplace(305, 10);
 	player->status->second.item.emplace(400, 10);
 	player->status->second.item.emplace(401, 10);
 	player->status->second.item.emplace(402, 10);
@@ -226,10 +221,11 @@ bool Manager::update()
 					gameState = GameState::over;
 					break;
 				}
+				player->status->second.AddItem((*i)->status->second.item);
 				i = Field::erase(i);
 				continue;
 			}
-			if((*i)->status->first->type == Status::Type::enemy && --(*i)->status->second.cool <= 0)
+			if ((*i)->status->first->type == Status::Type::enemy && --(*i)->status->second.cool <= 0 && static_cast<Enemy*>((*i)->status->first)->action != -1)
 			{
 				auto target = Field::get((*i)->pos, -(*i)->status->first->range);
 				target.expired() ? Action::execute(static_cast<Enemy*>((*i)->status->first)->action, **i) : target.lock()->execute(static_cast<Enemy*>((*i)->status->first)->action, **i);
@@ -245,6 +241,7 @@ bool Manager::update()
 	}
 
 	TextManager::update();
+	Popup::update();
 
 	// パーティクル更新
 	ParticleSystem::update();
@@ -283,6 +280,8 @@ void Manager::draw()
 				break;
 			--it;
 		}
+
+		Popup::draw();
 
 		// HUD
 		ui.DrawBox(5, 5, {26,400}, 0xff134b13, true);

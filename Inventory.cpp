@@ -5,7 +5,7 @@
 #include "Icon.hpp"
 #include "convert_string.hpp"
 
-Display Inventory::display({10,10}, {308,540}, 1);
+Display Inventory::display({160,10}, {178,540}, 1);
 bool Inventory::active = false;
 int Inventory::column = 3;
 
@@ -76,18 +76,6 @@ short Inventory::qwerty[64] =
 		-1,	// 6e	10進
 		-1,	// 6f	キーの分割
 };
-
-// 
-// 上下は範囲外
-// 左右は範囲外・行外れ
-// 行外れの判定は直前の選択位置と行を比較する？
-// 
-// 左右の範囲外は、+column)%columnでいいか　その行の数
-// 上下もその列の数を受け取れば良さそう
-// 
-// min(num-prev/column*column,column)
-// (num-prev%column-1)/column+1
-// 
 
 void Inventory::controll(std::shared_ptr<Object>& player)
 {
@@ -201,10 +189,9 @@ void Inventory::draw(const std::shared_ptr<Object>& player)
 {
 	if(active)
 	{
-		int num = 0;
 		Point<int> boxSize(26, 180);
-		display.DrawBox(0, display.siz.y - 48, {48,display.siz.x}, 0xff888888, true);
-		if(player->status->second.item.empty())
+
+		if (player->status->second.item.empty())
 		{
 			display.DrawBox(0, 0, boxSize, 0xff888888, true);
 			display.DrawRawString(3, 4, u8"アイテムを持っていない", 0xffffffff);
@@ -212,30 +199,43 @@ void Inventory::draw(const std::shared_ptr<Object>& player)
 		}
 		else
 		{
-			for(const auto& i : player->status->second.item)
+			int num = 0, start = __min(__max(select / column - 2, 0), (static_cast<int>(player->status->second.item.size()) - 1) / column - 4) * 3;
+			const std::u8string* lore = nullptr;
+
+			for (const auto& i : player->status->second.item)
 			{
 				auto item = DataBase::item.find(i.first);
-				if(item != DataBase::item.end())
+				if (item != DataBase::item.end())
 				{
-					display.DrawBox(boxSize.x * (num % column), boxSize.y * (num / column), boxSize, 0xff888888, true);
-					display.DrawIcon(boxSize.x * (num % column) + 1, boxSize.y * (num / column) + 1, item->second.icon);
-					display.DrawRawString(boxSize.x * (num % column) + boxSize.y + 3, boxSize.y * (num / column) + 4, item->second.name, 0xffffffff);
-					if(i.second != -1)
-						display.DrawRawString(boxSize.x * ((num % column) + 1) - 5, boxSize.y * (num / column) + 4, ext::convert(std::to_string(i.second)), 0xffffffff, Ref::right);
-					display.DrawBox(boxSize.x * (num % column), boxSize.y * (num / column), boxSize, 0xff6a6a6a, false);
-					if(num == select)
+					if (num >= start)
 					{
-						SetDrawBlendMode(DX_BLENDMODE_ADD, 64);
-						display.DrawBox(boxSize.x * (num % column), boxSize.y * (num / column), boxSize, 0xffffffff, true);
+						SetDrawBlendMode(DX_BLENDMODE_ALPHA, 196);
+						display.DrawBox(boxSize.x * ((num-start) % column), boxSize.y * ((num - start) / column), boxSize, 0xff888888, true);
 						SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
-
-						display.DrawString(3, display.siz.y - 44, item->second.lore, 0xffffffff);
+						display.DrawIcon(boxSize.x * ((num - start) % column) + 1, boxSize.y * ((num - start) / column) + 1, item->second.icon);
+						display.DrawBox(boxSize.x * ((num - start) % column), boxSize.y * ((num - start) / column), boxSize, 0xff6a6a6a, false);
+						display.DrawRawString(boxSize.x * ((num - start) % column) + boxSize.y + 3, boxSize.y * ((num - start) / column) + 4, item->second.name, 0xffffffff);
+						if (i.second != -1)
+							display.DrawRawString(boxSize.x * (((num - start) % column) + 1) - 5, boxSize.y * ((num - start) / column) + 4, ext::convert(std::to_string(i.second)), 0xffffffff, Ref::right);
+						if (num == select)
+						{
+							SetDrawBlendMode(DX_BLENDMODE_ADD, 64);
+							display.DrawBox(boxSize.x * ((num - start) % column), boxSize.y * ((num - start) / column), boxSize, 0xffffffff, true);
+							lore = &item->second.lore;
+						}
 					}
-					++num;
+					if (++num >= start + column * 5)
+						break;
 				}
 			}
+			SetDrawBlendMode(DX_BLENDMODE_ALPHA, 196);
+			display.DrawBox(0, display.siz.y - 48, { 48,display.siz.x }, 0xff888888, true);
+			SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
+			if (lore != nullptr)
+				display.DrawString(3, display.siz.y - 44, *lore, 0xffffffff);
+			display.DrawBox(0, display.siz.y - 48, { 48,display.siz.x }, 0xff6a6a6a, false);
 		}
-		display.DrawBox(0, display.siz.y - 48, {48,display.siz.x}, 0xff6a6a6a, false);
+
 		// ショートカット表示
 		if(Keyboard::press(VK_CONTROL))
 		{
