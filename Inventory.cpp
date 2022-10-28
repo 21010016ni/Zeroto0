@@ -89,7 +89,7 @@ short Inventory::qwerty[64] =
 // (num-prev%column-1)/column+1
 // 
 
-void Inventory::controll(Player* player)
+void Inventory::controll(std::shared_ptr<Object>& player)
 {
 	if(Keyboard::push(VK_SHIFT))
 	{
@@ -175,7 +175,7 @@ void Inventory::controll(Player* player)
 			{
 				auto it = player->status->second.item.begin();
 				std::advance(it, select);
-				player->shortcut[i] = it->first;
+				static_cast<Player*>(player->status->first)->shortcut[i] = it->first;
 				break;
 			}
 		}
@@ -197,7 +197,7 @@ void Inventory::controll(Player* player)
 	select = __min(select, (int)player->status->second.item.size() - 1);
 }
 
-void Inventory::draw(const Player* player)
+void Inventory::draw(const std::shared_ptr<Object>& player)
 {
 	if(active)
 	{
@@ -245,9 +245,9 @@ void Inventory::draw(const Player* player)
 				{
 					DrawBox(500 + (qwerty[i] % 100) * 13, 30 + (qwerty[i] / 100) * 26, 500 + (qwerty[i] % 100 + 2) * 13, 30 + (qwerty[i] / 100 + 1) * 26, 0xff888888, TRUE);
 					DrawBox(500 + (qwerty[i] % 100) * 13, 30 + (qwerty[i] / 100) * 26, 500 + (qwerty[i] % 100 + 2) * 13, 30 + (qwerty[i] / 100 + 1) * 26, 0xff6a6a6a, FALSE);
-					if(player->shortcut[i] != -1)
+					if (static_cast<Player*>(player->status->first)->shortcut[i] != -1)
 					{
-						Icon::draw(500 + (qwerty[i] % 100) * 13 + 1, 30 + (qwerty[i] / 100) * 26 + 1, DataBase::item.find(player->shortcut[i])->second.icon);
+						Icon::draw(500 + (qwerty[i] % 100) * 13 + 1, 30 + (qwerty[i] / 100) * 26 + 1, DataBase::item.find(static_cast<Player*>(player->status->first)->shortcut[i])->second.icon);
 					}
 				}
 			}

@@ -11,12 +11,14 @@
 #include "Inventory.hpp"
 #include "Text.hpp"
 #include "Config.hpp"
-#include "ParticleDust.hpp"
+#include "Particle.hpp"
 
 #include <iostream>
 
 Display Manager::display({0,0}, Application::WindowSize, 0);
 Display Manager::ui({0,0}, Application::WindowSize, 2);
+
+extern std::mt19937 engine;
 
 void Manager::preset()
 {
@@ -32,9 +34,10 @@ void Manager::preset()
 
 	Effect::load(LoadGraph("data/effect/pipo-btleffect001.png"), 5, 1, LoadSoundMem((const char*)u8"data/se/刀剣・斬る01.mp3"));
 
-	player = Field::set(new Player(0, &DataBase::status[0], 0, 30));
-	Field::set(new Object(15, &DataBase::status[1]))->status->second.item.emplace(0, -1);
-	static_cast<Player*>(player.get())->shortcut[0x2a] = 0;
+	static Player pl_status(u8"ゼロ", 20, 10, 7, 5, 30, u8"data/picture/sibyl.png", 0, {}, 0);
+	player = Field::set(new Object(0, &pl_status));
+	Field::set(new Object(15, &DataBase::enemy[0]));
+	static_cast<Player*>(player->status->first)->shortcut[0x2a] = 0;
 	player->status->second.item.emplace(0, -1);
 	player->status->second.item.emplace(1, -1);
 	player->status->second.item.emplace(2, -1);
@@ -128,7 +131,7 @@ bool Manager::update()
 		// インベントリが開いている場合、そちらに操作を吸わせる
 		if(Inventory::active)
 		{
-			Inventory::controll(static_cast<Player*>(player.get()));
+			Inventory::controll(player);
 		}
 		// どこにも操作を吸わせる先が無かったらメイン操作
 		else if(player->status->second.cool <= 0)
@@ -164,6 +167,12 @@ bool Manager::update()
 						(*i)->status->second.flag |= 2;
 					}
 				}
+				// 敵追加
+				if (!std::uniform_int_distribution{ 0,7 }(engine))
+				{
+					Field::set(new Object(player->pos + player->status->first->range, &DataBase::enemy[0]));
+				}
+
 				Display::shake.set(0, 8, {4.0f,0.0f});
 				player->status->second.cool = 20;	// 仮
 			}
@@ -186,7 +195,7 @@ bool Manager::update()
 				for(BYTE i = 0; i < 64; ++i)
 					if(Keyboard::press(0x30 + i))
 					{
-						int id = static_cast<Player*>(player.get())->shortcut[i];
+						int id = static_cast<Player*>(player->status->first)->shortcut[i];
 						if(id != -1)
 						{
 							auto item = DataBase::item.find(id);
@@ -212,7 +221,7 @@ bool Manager::update()
 			// 削除
 			if((*i)->status->second.flag & 4)
 			{
-				if((*i)->type == Object::Type::player)
+				if ((*i)->status->first->type == Status::Type::player)
 				{
 					gameState = GameState::over;
 					break;
@@ -220,19 +229,14 @@ bool Manager::update()
 				i = Field::erase(i);
 				continue;
 			}
-			if((*i)->type == Object::Type::enemy && --(*i)->status->second.cool <= 0)
+			if((*i)->status->first->type == Status::Type::enemy && --(*i)->status->second.cool <= 0)
 			{
-				for(const auto& j : (*i)->status->second.item)
-				{
-					if(j.first < DataBase::enemyAction.size())
-					{
-						auto target = Field::get((*i)->pos, -DataBase::enemyAction[j.first].reach);
-						target.expired() ? Action::execute(DataBase::enemyAction[j.first].id, **i) : target.lock()->execute(DataBase::enemyAction[j.first].id, **i);
-					}
-				}
+				auto target = Field::get((*i)->pos, -(*i)->status->first->range);
+				target.expired() ? Action::execute(static_cast<Enemy*>((*i)->status->first)->action, **i) : target.lock()->execute(static_cast<Enemy*>((*i)->status->first)->action, **i);
 			}
 			++i;
 		}
+
 		if(var[0] != player->status->second.cool)
 			var[1] = player->status->second.cool;
 	}
@@ -244,7 +248,7 @@ bool Manager::update()
 
 	// パーティクル更新
 	ParticleSystem::update();
-	if(!std::uniform_int_distribution{0,16}(mt))
+	if(!std::uniform_int_distribution{0,16}(engine))
 		ParticleSystem::add<Dust>(1);
 
 	// BGM更新処理
@@ -267,15 +271,14 @@ void Manager::draw()
 	}
 	else if(gameState == GameState::play)
 	{
-		int search = static_cast<Player*>(player.get())->searchRange;
 		display.DrawGraph(0, 0, back, true);
 		//display.DrawGraph(-100, 20, HandleManager::get(player->status->first->graph, HandleManager::Type::graph), true);
 
 		auto it = Field::cend();
-		while(it != Field::begin() && (*--it)->pos > player->pos + search);
-		while((*it)->pos > player->pos && (*it)->pos <= player->pos + search)
+		while(it != Field::begin() && (*--it)->pos > player->pos + player->status->first->range);
+		while((*it)->pos > player->pos && (*it)->pos <= player->pos + player->status->first->range)
 		{
-			display.DrawGraph(0, 0, HandleManager::get((*it)->status->first->graph, HandleManager::Type::graph), true);
+			display.DrawGraph(1024, 600, HandleManager::get((*it)->status->first->graph, HandleManager::Type::graph), true, Ref::right | Ref::under);
 			if(it == Field::begin())
 				break;
 			--it;
@@ -290,7 +293,7 @@ void Manager::draw()
 		ui.DrawRawString(420, 8, u8"現在地：", 0xffa4a4a4);
 		ui.DrawRawString(495, 8, u8"病院", 0xffa4a4a4);
 		ui.DrawRawString(550, 8, u8"(" + ext::to_u8string(player->pos) + u8")", 0xffa4a4a4);
-		for(int i = 0; i < search; ++i)
+		for(int i = 0; i < player->status->first->range; ++i)
 		{
 			ui.DrawBox(8 + i * 7, 42, {19,7}, 0xffa4a4a4, false);
 		}
@@ -298,20 +301,15 @@ void Manager::draw()
 		{
 			if((*i)->pos < player->pos)
 				continue;
-			if((*i)->pos > player->pos + search)
+			if((*i)->pos > player->pos + player->status->first->range)
 				break;
-			switch((*i)->type)
-			{
-			case Object::Type::player:
+			if((*i)->status->first->type == Status::Type::player)
 				ui.DrawCircle(11 + ((*i)->pos - player->pos) * 7, 51, 6, 0xffa4a4a4, true);
-				break;
-			case Object::Type::enemy:
+			else if((*i)->status->first->type == Status::Type::enemy)
 				ui.DrawCircle(11 + ((*i)->pos - player->pos) * 7, 51, 7, 0xffff0000, true);
-				break;
-			}
 		}
 
-		Inventory::draw(static_cast<Player*>(player.get()));
+		Inventory::draw(player);
 	}
 	else if(gameState == GameState::over)
 	{

@@ -32,8 +32,9 @@ bool Action::execute(int id, Object& user)
 * +0000 ~ +0fff	アイテムを相手に使用
 * +1000 ~ +1fff	アイテムを自身に使用
 * -0001			設定しない
-* -0002			接触時
-* -0003			倒されたとき
+* -0002			アイテム未設定
+* -0003			接触時
+* -0004			倒されたとき
 * -0004
 */
 
@@ -42,6 +43,10 @@ std::unordered_map<int, Action::ValueSingle> Action::commonActionSingle =
 	{touch,[](Object& u) {	// 接触時
 		TextManager::player.set(u8R"(\bDebug:オブジェクトに接触した\w9\e)");
 		return true;
+	}},
+	{-2,[](Object& u) {	// アイテム未設定
+		TextManager::player.set(u8R"(\b……使い方が分からない。\w9\e)");
+		return false;
 	}},
 	{item_use + 0,[](Object& u) {	// 話す
 		TextManager::player.set(u8R"(\b虚空に向かって話しかけた。\w9\e)");
@@ -59,7 +64,7 @@ std::unordered_map<int, Action::ValueSingle> Action::commonActionSingle =
 		return false;
 	}},
 	{item_use + 3,[](Object& u) {	// 妹と話す
-		switch(static_cast<Player*>(&u)->partner)
+		switch(static_cast<Player*>(u.status->first)->partner)
 		{
 			case 4:
 				TextManager::player.set(u8R"(\b「\w6…\w6…\w6ん、\w2どうしたの、\w2お兄ちゃん？」\w9\e)");

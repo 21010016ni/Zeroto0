@@ -17,7 +17,7 @@ public:
 	static bool active;
 	static inline int select = 0;
 
-	static void controll(Player* target);
-	static void draw(const Player* target);
+	static void controll(std::shared_ptr<Object>& player);
+	static void draw(const std::shared_ptr<Object>& player);
 };
 

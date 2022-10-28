@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include <map>
+#include <vector>
 
 class Status
 {
@@ -12,19 +13,51 @@ public:
 		bright,
 		arousal,
 	};
+	enum class Type :char
+	{
+		undefined,
+		player,
+		enemy,
+	} type;
 
 	std::u8string name;
 	int hp;
 	int atk;
 	int speedFront;
 	int speedBack;
+	int range;
+
 	std::u8string graph;
 
 	unsigned char flag;	// 最下位ビットは通行可不可の判定に用いる　それ以外は自由
 
-	Status(const char8_t* name, int hp, int atk, int speedFront, int speedBack, const char8_t* graph, unsigned char flag) :name(name), hp(hp), atk(atk), speedFront(speedFront), speedBack(speedBack), graph(graph), flag(flag) {}
-	
 	std::map<int, int> item;	// 敵の場合ドロップアイテム、プレイヤーの場合引継ぎアイテム
+
+	Status(const char8_t* name, int hp, int atk, int speedFront, int speedBack, int range, const char8_t* graph, unsigned char flag, std::map<int, int> item) :type(Type::undefined), name(name), hp(hp), atk(atk), speedFront(speedFront), speedBack(speedBack), range(range), graph(graph), flag(flag), item(item) {}
+};
+
+class Player :public Status
+{
+public:
+	int partner;
+	std::vector<int> shortcut;
+
+	Player(const char8_t* name, int hp, int atk, int speedFront, int speedBack, int range, const char8_t* graph, unsigned char flag, std::map<int, int> item, int partner) :Status(name, hp, atk, speedFront, speedBack, range, graph, flag, item), partner(partner)
+	{
+		type = Type::player;
+		shortcut.resize(64, -1);
+	}
+};
+
+class Enemy :public Status
+{
+public:
+	int action;
+
+	Enemy(const char8_t* name, int hp, int atk, int speedFront, int speedBack, int range, const char8_t* graph, unsigned char flag, std::map<int, int> item, int action) :Status(name, hp, atk, speedFront, speedBack, range, graph, flag, item), action(action)
+	{
+		type = Type::enemy;
+	}
 };
 
 class StatusInst
@@ -45,3 +78,4 @@ public:
 
 	void AddItem(const std::map<int, int>& t);
 };
+

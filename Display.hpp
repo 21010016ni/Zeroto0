@@ -6,12 +6,12 @@
 
 enum Ref :unsigned char
 {
-	left = 0b00000000,
-	center = 0b00000001,
-	right = 0b00000010,
-	top = 0b00000000,
-	middle = 0b00000100,
-	under = 0b00001000,
+	left = 0b0000,
+	right = 0b0001,
+	center = 0b0011,
+	top = 0b0000,
+	under = 0b0100,
+	middle = 0b1100,
 };
 
 class Display
@@ -91,14 +91,8 @@ public:
 	{
 		DxLib::DrawCircle(pos.x + x + shake.x(level), pos.y + y + shake.y(level), r, color, fill);
 	}
-	void DrawGraph(const Point<int>& dst, int handle, bool TransFlag = true)const
-	{
-		DxLib::DrawGraph(pos.x + dst.x + shake.x(level), pos.y + dst.y + shake.y(level), handle, TransFlag);
-	}
-	void DrawGraph(int x, int y, int handle, bool TransFlag = true)const
-	{
-		DxLib::DrawGraph(pos.x + x + shake.x(level), pos.y + y + shake.y(level), handle, TransFlag);
-	}
+	void DrawGraph(const Point<int>& dst, int handle, bool TransFlag, unsigned char ref = 0)const;
+	void DrawGraph(int x, int y, int handle, bool TransFlag, unsigned char ref = 0)const;
 	void DrawIcon(const Point<int>& dst, int id)const;
 	void DrawIcon(int x, int y, int id)const;
 	void DrawString(const Point<int>& dst, const std::u8string& text, unsigned int color)const;

@@ -8,11 +8,10 @@ std::vector<Item> DataBase::enemyAction =
 	{u8"通常", u8"", -1, 0x2000, 4},
 };
 
-std::vector<Status> DataBase::status =
+std::vector<Enemy> DataBase::enemy =
 {
-	// 名前,HP,攻撃力,前方移動速度,後方移動速度,画像
-	{u8"ゼロ", 20, 10, 7, 5, u8"data/picture/sibyl.png", 0},
-	{u8"沈黙の花", 10, 1, 2, 0, u8"data/picture/flower3868.png", 0},
+	// 名前,HP,攻撃力,前方移動速度,後方移動速度,射程,画像,フラグ,所持アイテム,アクション番号
+	{u8"沈黙の花", 10, 1, 2, 0,4, u8"data/picture/flower3868.png", 0,{},0x2000},
 };
 
 void DataBase::LoadItem(const char* FileName)
@@ -31,5 +30,9 @@ void DataBase::LoadItem(const char* FileName)
 			continue;
 		item.emplace(std::stoi(elem[0]), Item(ext::tochar(elem[1]), ext::tochar(elem[2]), std::stoi(elem[3], nullptr, 16), std::stoi(elem[4]), std::stoi(elem[5])));
 	}
+}
+
+void DataBase::preset()
+{
 }
 

@@ -157,6 +157,8 @@
     <ClCompile Include="Inventory.cpp" />
     <ClCompile Include="Object.cpp" />
     <ClCompile Include="Particle.cpp" />
+    <ClCompile Include="ParticleSystem.cpp" />
+    <ClCompile Include="Popup.cpp" />
     <ClCompile Include="Status.cpp" />
     <ClCompile Include="Text.cpp" />
   </ItemGroup>
@@ -176,9 +178,10 @@
     <ClInclude Include="Manager.hpp" />
     <ClInclude Include="Inventory.hpp" />
     <ClInclude Include="Object.hpp" />
+    <ClInclude Include="ParticleSystem.hpp" />
     <ClInclude Include="Particle.hpp" />
-    <ClInclude Include="ParticleDust.hpp" />
     <ClInclude Include="Point.hpp" />
+    <ClInclude Include="Popup.hpp" />
     <ClInclude Include="Status.hpp" />
     <ClInclude Include="Text.hpp" />
   </ItemGroup>
