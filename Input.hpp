@@ -22,13 +22,10 @@ public:
 	static void update()noexcept
 	{
 		static BYTE key[256] = {0};
-		//static char key[256] = { 0 };
 		static BYTE i = 0;
 		(void)GetKeyboardState(key);
-		//GetHitKeyStateAll(key);
 		do
 			value[i] << bool(key[i] & 0x80);
-			//value[i] << key[i];
 		while (++i != 0);
 	}
 
