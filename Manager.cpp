@@ -37,28 +37,11 @@ void Manager::preset()
 
 	static Player pl_status(u8"ゼロ", 20, 10, 7, 5, 30, u8"data/picture/sibyl.png", 0, {}, 0);
 	player = Field::set(new Object(0, &pl_status));
-	Field::set(new Object(15, &DataBase::enemy[0]));
+	Field::set(new Object(15, &(DataBase::enemy.find(0)->second)));
 	static_cast<Player*>(player->status->first)->shortcut[0x2a] = 0;
 	player->status->second.item.emplace(0, -1);
-	player->status->second.item.emplace(1, -1);
 	player->status->second.item.emplace(2, -1);
-	player->status->second.item.emplace(3, -1);
-	player->status->second.item.emplace(100, 10);
-	//player->status->second.item.emplace(101, -1);
-	player->status->second.item.emplace(102, 10);
-	player->status->second.item.emplace(103, 10);
-	player->status->second.item.emplace(104, 10);
-	player->status->second.item.emplace(105, 10);
-	player->status->second.item.emplace(106, 10);
-	player->status->second.item.emplace(200, 10);
-	player->status->second.item.emplace(201, 10);
-	player->status->second.item.emplace(202, 10);
-	player->status->second.item.emplace(203, 10);
-	player->status->second.item.emplace(400, 10);
-	player->status->second.item.emplace(401, 10);
-	player->status->second.item.emplace(402, 10);
-	player->status->second.item.emplace(403, 10);
-	player->status->second.item.emplace(404, 10);
+	player->status->second.item.emplace(200, 6);
 
 	volume.mute &= 0b11111110;
 	volume.bgm = 128;
@@ -123,6 +106,31 @@ bool Manager::update()
 	{
 		// プレイヤーのクールタイム減少
 		var[0] = player->status->second.cool = __max(player->status->second.cool - 1, 0);
+
+		// プレイヤーのエフェクト減少、一部の効果発揮
+		if(++var[2] >= 60)
+		{
+			var[2] = 0;
+			for(auto i = player->status->second.state.begin(); i != player->status->second.state.cend();)
+			{
+				if(i->first == Status::State::poison)
+				{
+					player->status->second.hp -= 1;
+				}
+				else if(i->first == Status::State::saturation)
+				{
+					player->status->second.hp += 1;
+				}
+
+				if(--i->second <= 0)
+				{
+					i = player->status->second.state.erase(i);
+					continue;
+				}
+				++i;
+			}
+		}
+
 		// インベントリが開いている場合、そちらに操作を吸わせる
 		if(Inventory::active)
 		{
@@ -165,7 +173,7 @@ bool Manager::update()
 				// 敵追加
 				if (!std::uniform_int_distribution{ 0,7 }(engine))
 				{
-					Field::set(new Object(player->pos + player->status->first->range, &DataBase::enemy[0]));
+					Field::set(new Object(player->pos + player->status->first->range, &(DataBase::enemy.find(__min(player->pos / 100, 0))->second)));
 				}
 
 				Display::shake.set(0, 8, {4.0f,0.0f});
@@ -292,9 +300,31 @@ void Manager::draw()
 		ui.DrawRawString(420, 8, u8"現在地：", 0xffa4a4a4);
 		ui.DrawRawString(495, 8, u8"病院", 0xffa4a4a4);
 		ui.DrawRawString(550, 8, u8"(" + ext::to_u8string(player->pos) + u8")", 0xffa4a4a4);
+		var[0] = 5;
+		for(const auto& i : player->status->second.state)
+		{
+			int id = -1;
+			switch(i.first)
+			{
+			case Status::State::poison:
+				id = 0x623;
+				break;
+			case Status::State::saturation:
+				id = 0x625;
+				break;
+			case Status::State::bright:
+				id = 0x630;
+				break;
+			case Status::State::arousal:
+				id = 0x651;
+				break;
+			}
+			ui.DrawIcon(var[0], 36, id);
+			var[0] += 24;
+		}
 		for(int i = 0; i < player->status->first->range; ++i)
 		{
-			ui.DrawBox(8 + i * 7, 42, {19,7}, 0xffa4a4a4, false);
+			ui.DrawBox(8 + i * 9, 65, {19,9}, 0xffa4a4a4, false);
 		}
 		for(auto i = Field::begin(); i != Field::cend(); ++i)
 		{
@@ -303,9 +333,9 @@ void Manager::draw()
 			if((*i)->pos > player->pos + player->status->first->range)
 				break;
 			if((*i)->status->first->type == Status::Type::player)
-				ui.DrawCircle(11 + ((*i)->pos - player->pos) * 7, 51, 6, 0xffa4a4a4, true);
+				ui.DrawCircle(12 + ((*i)->pos - player->pos) * 9, 74, 6, 0xffa4a4a4, true);
 			else if((*i)->status->first->type == Status::Type::enemy)
-				ui.DrawCircle(11 + ((*i)->pos - player->pos) * 7, 51, 7, 0xffff0000, true);
+				ui.DrawCircle(12 + ((*i)->pos - player->pos) * 9, 74, 7, 0xffff0000, true);
 		}
 
 		Inventory::draw(player);

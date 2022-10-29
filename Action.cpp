@@ -43,7 +43,6 @@ bool Action::execute(int id, Object& user)
 * -0002			アイテム未設定
 * -0003			接触時
 * -0004			倒されたとき
-* -0004
 */
 
 std::unordered_map<int, Action::ValueSingle> Action::commonActionSingle =
@@ -56,18 +55,18 @@ std::unordered_map<int, Action::ValueSingle> Action::commonActionSingle =
 		TextManager::player.set(u8R"(\b……使い方が分からない。\w9\e)");
 		return false;
 	}},
-	{item_use + 0,[](Object& u) {	// 話す
+	{item_use + 0,[](Object& u) {	// 調べる
+		TextManager::player.set(u8R"(\b何もない。\w9\e)");
+		u.status->second.cool = 20;
+		return false;
+	}},
+	{item_use + 1,[](Object& u) {	// 話す
 		TextManager::player.set(u8R"(\b虚空に向かって話しかけた。\w9\e)");
 		u.status->second.cool = 20;
 		return false;
 	}},
-	{item_use + 1,[](Object& u) {	// 殴る
+	{item_use + 2,[](Object& u) {	// 殴る
 		TextManager::player.set(u8R"(\b何もないところを殴りつけた。\w9\e)");
-		u.status->second.cool = 20;
-		return false;
-	}},
-	{item_use + 2,[](Object& u) {	// 調べる
-		TextManager::player.set(u8R"(\b何もない。\w9\e)");
 		u.status->second.cool = 20;
 		return false;
 	}},
@@ -196,13 +195,13 @@ std::unordered_map<int, Action::ValueSingle> Action::commonActionSingle =
 
 std::unordered_map<int, Action::ValueDouble> Action::commonActionDouble =
 {
-	{item_use + 0,[](Object& u,Object&) {	// 話す
+	{item_use + 1,[](Object& u,Object&) {	// 話す
 		TextManager::partner.set(u8R"(\bそれは言葉を返さない。\w9\e)");
 		u.status->second.cool = 20;
 		return false;
 	}},
-	{item_use + 1,[](Object& u,Object& t) {	// 殴る
-		t.damage(u.status->second.atk);
+	{item_use + 2,[](Object& u,Object& t) {	// 殴る
+		t.damage(static_cast<int>(u.status->second.atk* (u.has(Status::State::arousal) ? 1.3f : 1.0f)));
 		u.status->second.cool = 60;
 		return true;
 	}},
@@ -214,27 +213,27 @@ std::unordered_map<int, Action::ValueDouble> Action::commonActionDouble =
 		return true;
 	}},
 	{item_use + 200,[](Object& u,Object& t) {	// 錆びた短剣
-		t.damage(u.status->second.atk);
+		t.damage(static_cast<int>(u.status->second.atk* (u.has(Status::State::arousal) ? 1.3f : 1.0f)));
 		u.status->second.cool = 40;
 		return true;
 	}},
 	{item_use + 201,[](Object& u,Object& t) {	// ショートソード
-		t.damage(u.status->second.atk + 2);
+		t.damage(static_cast<int>((u.status->second.atk + 2)* (u.has(Status::State::arousal) ? 1.3f : 1.0f)));
 		u.status->second.cool = 50;
 		return true;
 	}},
 	{item_use + 202,[](Object& u,Object& t) {	// ハンドアックス
-		t.damage(u.status->second.atk + 8);
+		t.damage(static_cast<int>((u.status->second.atk + 8)* (u.has(Status::State::arousal) ? 1.3f : 1.0f)));
 		u.status->second.cool = 90;
 		return true;
 	}},
 	{item_use + 203,[](Object& u,Object& t) {	// ショートスピア
-		t.damage(u.status->second.atk + 3);
+		t.damage(static_cast<int>((u.status->second.atk + 3)* (u.has(Status::State::arousal) ? 1.3f : 1.0f)));
 		u.status->second.cool = 70;
 		return true;
 	}},
 	{enemy_action + 0,[](Object& u,Object& t) {	// 攻撃
-		t.damage(u.status->second.atk);
+		t.damage(static_cast<int>(u.status->second.atk* (u.has(Status::State::arousal) ? 1.3f : 1.0f)));
 		Display::shake.set(1, 8, 6.0f);
 		u.status->second.cool = 120;	// 仮
 		return true;

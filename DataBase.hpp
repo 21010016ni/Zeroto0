@@ -10,7 +10,7 @@ class DataBase
 public:
 	static std::vector<Action> action;
 	static inline std::map<int, Item> item;
-	static std::vector<Enemy> enemy;
+	static std::map<int, Enemy> enemy;
 
 	static void LoadItem(const char* FileName);
 };

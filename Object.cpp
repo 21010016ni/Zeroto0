@@ -20,3 +20,8 @@ void Object::damage(int v)
 		TextManager::partner.set((u8R"(\b)" + status->first->name + u8R"(に)" + ext::to_u8string(v) + u8R"(のダメージ。\w9\e)").c_str());
 }
 
+bool Object::has(Status::State state)const
+{
+	return status->second.state.find(state) != status->second.state.cend();
+}
+

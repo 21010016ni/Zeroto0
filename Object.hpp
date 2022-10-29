@@ -13,6 +13,7 @@ public:
 
 	bool execute(int id, Object& user);
 	void damage(int v);
+	bool has(Status::State state)const;
 
 	operator bool()const noexcept { return static_cast<bool>(status); }
 };

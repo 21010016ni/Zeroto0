@@ -22,7 +22,7 @@ class Manager
 	static Display display;
 	static Display ui;
 
-	static inline int var[2] = {0,0};
+	static inline int var[3] = {0,0,0};
 
 public:
 	enum class GameState
