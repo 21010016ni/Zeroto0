@@ -252,22 +252,22 @@ std::unordered_map<int, Action::ValueDouble> Action::commonActionDouble =
 		u.status->second.cool = 70;
 		return true;
 	}},
-	{item_use + 201,[](Object& u,Object& t) {	// レイピア
+	{item_use + 204,[](Object& u,Object& t) {	// レイピア
 		t.damage(static_cast<int>((u.status->second.atk * 1.5f + 9)* (u.has(Status::State::arousal) ? 1.3f : 1.0f)));
 		u.status->second.cool = 50;
 		return true;
 	}},
-	{item_use + 202,[](Object& u,Object& t) {	// バトルアックス
+	{item_use + 205,[](Object& u,Object& t) {	// バトルアックス
 		t.damage(static_cast<int>((u.status->second.atk * 2.7f + 4)* (u.has(Status::State::arousal) ? 1.3f : 1.0f)));
 		u.status->second.cool = 90;
 		return true;
 	}},
-	{item_use + 203,[](Object& u,Object& t) {	// ハルバード
+	{item_use + 206,[](Object& u,Object& t) {	// ハルバード
 		t.damage(static_cast<int>((u.status->second.atk * 1.6f + 3)* (u.has(Status::State::arousal) ? 1.3f : 1.0f)));
 		u.status->second.cool = 70;
 		return true;
 	}},
-	{item_use + 203,[](Object& u,Object& t) {	// グラディウス
+	{item_use + 207,[](Object& u,Object& t) {	// グラディウス
 		t.damage(static_cast<int>((u.status->second.atk * 2.2f + 11) * (u.has(Status::State::arousal) ? 1.3f : 1.0f)));
 		u.status->second.cool = 40;
 		return true;

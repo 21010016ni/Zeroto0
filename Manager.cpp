@@ -35,11 +35,11 @@ void Manager::preset()
 	BGM::set(u8"data/bgm/レイト・ナイト・スノウ.mp3");
 	BGM::set(u8"data/bgm/深海魚の遊泳.mp3");
 
-	Effect::load(LoadGraph("data/effect/pipo-btleffect001.png"), 5, 1, LoadSoundMem((const char*)u8"data/se/刀剣・斬る01.mp3"));
+	Effect::load(LoadGraph("data/effect/pipo-btleffect001.png"), 5, 1, LoadSoundMem((const char*)u8"data/se/刀剣・斬る01.mp3")); 
 
 	static Player pl_status(u8"ゼロ", 20, 10, 7, 5, 30, u8"data/picture/sibyl.png", 0, {}, 0);
 	player = Field::set(new Object(0, &pl_status));
-	Field::set(new Object(15, &(DataBase::enemy.find(0)->second)));
+	Field::set(new Object(50, &(DataBase::enemy.find(200)->second)));
 	static_cast<Player*>(player->status->first)->shortcut[0x2a] = 0;
 	player->status->second.item.emplace(0, -1);
 	player->status->second.item.emplace(2, -1);
