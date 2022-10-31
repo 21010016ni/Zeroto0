@@ -204,13 +204,17 @@ void Display::DrawRawString(int x, int y, const std::u8string& text, unsigned in
 	{
 		rx = GetDrawStringWidthToHandle(ext::tochar(text), (int)text.size(), font);
 		if (ref & 0x02)
+		{
 			rx /= 2;
+		}
 	}
 	if (ref & 0x04)
 	{
 		ry = fontSize;
 		if (ref & 0x08)
+		{
 			ry /= 2;
+		}
 	}
 	DxLib::DrawStringToHandle(pos.x + x - rx + shake.x(level), pos.y + y - ry + shake.y(level), ext::tochar(text), color, font);
 }

@@ -26,7 +26,11 @@ std::vector<Action> DataBase::action =
 std::map<int, Enemy> DataBase::enemy =
 {
 	// 名前,HP,攻撃力,前方移動速度,後方移動速度,射程,画像,フラグ,所持アイテム,アクション番号,リアクション実体へのポインタ
-	{0,Enemy(u8"沈黙する花", 10, 1, 2, 0, 4, u8"data/picture/flower3868.png", 0,{{300,-1},{301,-1},{302,-1},},0x2000,nullptr)},
+	{0,Enemy(u8"沈黙する花", 10, 1, 2, 0, 4, u8"data/picture/flower3868.png", 0,{{100,1},{201,1},{202,1}},0x2000,nullptr)},
+	{1,Enemy(u8"追想する花", 30, 4, 3, 0, 4, u8"data/picture/flower0497.png", 0,{{203,1},{102,1},{400,1}},0x2000,nullptr)},
+	{2,Enemy(u8"否定する花", 60, 7, 3, 0, 4, u8"data/picture/flower1719.png", 0,{{100,1},{103,1},{204,2},{206,1}},0x2000,nullptr)},
+	{3,Enemy(u8"悔恨する花", 100, 10, 4, 0, 4, u8"data/picture/flower3914.png", 0,{{101,-1},{106,1},{204,1},{205,1},{403,1}},0x2000,nullptr)},
+	{4,Enemy(u8"哄笑する花", 150, 14, 2, 0, 4, u8"data/picture/flower1720.png", 0,{{105,1},{207,1},{401,1},{404,1}},0x2000,nullptr) },
 	{100,Enemy(u8"扉", 200, 0, 0, 0, 0, u8"data/picture/door.png", 1,{},-1,&DataBase::action[0])},
 	{200,Enemy(u8"扉", 50, 0, 0, 0, 0, u8"data/picture/door.png", 1,{},-1,&DataBase::action[0])},
 	{201,Enemy(u8"イベント", 0, 0, 0, 0, 0, u8"data/picture/door.png", 1,{},-1,&DataBase::action[0])},

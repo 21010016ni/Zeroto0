@@ -33,6 +33,13 @@ public:
 	static bool press(BYTE code)noexcept { return value[code].press(); }
 	static bool push(BYTE code)noexcept { return value[code].push(); }
 	static bool pull(BYTE code)noexcept { return value[code].pull(); }
+	static bool press()
+	{
+		for (BYTE i = 0; i < 240; ++i)
+			if (press(i))
+				return true;
+		return false;
+	}
 };
 
 class Mouse

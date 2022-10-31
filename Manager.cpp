@@ -21,6 +21,8 @@ Display Manager::ui({0,0}, Application::WindowSize, 2);
 
 extern std::mt19937 engine;
 
+#define DemoStart 1200
+
 void Manager::preset()
 {
 	font = LoadFontDataToHandle((const char*)u8"data/font/刻明朝18.dft");
@@ -41,6 +43,7 @@ void Manager::preset()
 	static_cast<Player*>(player->status->first)->shortcut[0x2a] = 0;
 	player->status->second.item.emplace(0, -1);
 	player->status->second.item.emplace(2, -1);
+	player->status->second.item.emplace(103, 1);
 	player->status->second.item.emplace(200, 6);
 
 	volume.mute &= 0b11111110;
@@ -59,46 +62,59 @@ bool Manager::update()
 	if(gameState == GameState::title)
 	{
 		--var[0];
-		if(Keyboard::push(VK_UP))
+		++var[2];
+		if (var[2] < DemoStart)
 		{
-			if((--var[1]) < 0)
-				var[1] = 2;
-			var[0] = 12;
-		}
-		else if(Keyboard::press(VK_UP) && var[0] <= 0)
-		{
-			if((--var[1]) < 0)
-				var[1] = 4;
-			var[0] = 4;
-		}
-		else if(Keyboard::push(VK_DOWN))
-		{
-			var[1] = ++var[1] % 3;
-			var[0] = 12;
-		}
-		else if(Keyboard::press(VK_DOWN) && var[0] <= 0)
-		{
-			var[1] = ++var[1] % 3;
-			var[0] = 4;
-		}
-		if(Keyboard::push(VK_SPACE))
-		{
-			if(var[1] == 0)
+			if (Keyboard::push(VK_UP))
 			{
-				var[1] = 1;
-				BGM::play(1);
-				ParticleSystem::reset();
-				ParticleSystem::add<Dust>(20);
-				gameState = GameState::play;
+				if ((--var[1]) < 0)
+					var[1] = 2;
+				var[0] = 12;
 			}
-			else if(var[1] == 1)
+			else if (Keyboard::press(VK_UP) && var[0] <= 0)
 			{
+				if ((--var[1]) < 0)
+					var[1] = 4;
+				var[0] = 4;
+			}
+			else if (Keyboard::push(VK_DOWN))
+			{
+				var[1] = ++var[1] % 3;
+				var[0] = 12;
+			}
+			else if (Keyboard::press(VK_DOWN) && var[0] <= 0)
+			{
+				var[1] = ++var[1] % 3;
+				var[0] = 4;
+			}
+			if (Keyboard::push(VK_SPACE))
+			{
+				if (var[1] == 0)
+				{
+					var[1] = 1;
+					BGM::play(1);
+					ParticleSystem::reset();
+					ParticleSystem::add<Dust>(20);
+					gameState = GameState::play;
+				}
+				else if (var[1] == 1)
+				{
 
+				}
+				else if (var[1] == 2)
+				{
+					return false;
+				}
 			}
-			else if(var[1] == 2)
+			if (Keyboard::press())
 			{
-				return false;
+				var[2] = 0;
 			}
+		}
+		else if (Keyboard::press())
+		{
+			var[2] = 0;
+			var[0] = 0;
 		}
 	}
 	// ゲームメイン画面処理
@@ -171,9 +187,9 @@ bool Manager::update()
 					}
 				}
 				// 敵追加
-				if (!std::uniform_int_distribution{ 0,7 }(engine))
+				if (!std::uniform_int_distribution{ 0,3 }(engine))
 				{
-					Field::set(new Object(player->pos + player->status->first->range, &(DataBase::enemy.find(__min(player->pos / 100, 0))->second)));
+					Field::set(new Object(player->pos + player->status->first->range, &(DataBase::enemy.find(__min(player->pos / 60, 4))->second)));
 				}
 
 				Display::shake.set(0, 8, {4.0f,0.0f});
@@ -246,6 +262,10 @@ bool Manager::update()
 	}
 	else if(gameState == GameState::over)
 	{
+		//if (Keyboard::press())
+		//{
+		//	gameState = GameState::title;
+		//}
 	}
 
 	TextManager::update();
@@ -270,9 +290,21 @@ void Manager::draw()
 {
 	if(gameState == GameState::title)
 	{
-		ui.DrawRawString(1000, 300, u8"Start", (var[1] == 0) ? 0xffffffff : 0xffa4a4a4, Ref::right);
-		ui.DrawRawString(900, 380, u8"Config", (var[1] == 1) ? 0xffffffff : 0xffa4a4a4, Ref::right);
-		ui.DrawRawString(800, 460, u8"Quit", (var[1] == 2) ? 0xffffffff : 0xffa4a4a4, Ref::right);
+		if (var[2] > DemoStart + 64)
+		{
+			var[0] = std::sin((var[2] % 180) * 3.1415927f / 180) * 240 + 64;
+			var[0] = __min(var[0], 255);
+			SetDrawBlendMode(DX_BLENDMODE_ALPHA, (var[2] - DemoStart - 64) * 4);
+			ui.DrawRawString(512, 300, u8"Demo mode", GetColor(var[0], var[0], var[0]), Ref::center | Ref::middle);
+		}
+		else
+		{
+			SetDrawBlendMode(DX_BLENDMODE_ALPHA, 255 - (var[2] - DemoStart) * 4);
+			ui.DrawRawString(1000, 300, u8"Start", (var[1] == 0) ? 0xffffffff : 0xffa4a4a4, Ref::right);
+			ui.DrawRawString(900, 380, u8"Config", (var[1] == 1) ? 0xffffffff : 0xffa4a4a4, Ref::right);
+			ui.DrawRawString(800, 460, u8"Quit", (var[1] == 2) ? 0xffffffff : 0xffa4a4a4, Ref::right);
+		}
+		SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 	}
 	else if(gameState == GameState::play)
 	{
@@ -342,7 +374,7 @@ void Manager::draw()
 	}
 	else if(gameState == GameState::over)
 	{
-
+		display.DrawBox(0, 0, { 600,1024 }, 0xff880000, true);
 	}
 
 	TextManager::draw();
