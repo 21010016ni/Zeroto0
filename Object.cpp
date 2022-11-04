@@ -25,3 +25,8 @@ bool Object::has(Status::State state)const
 	return status->second.state.find(state) != status->second.state.cend();
 }
 
+void Object::reset(int num)
+{
+	status->second = StatusInst(*status->first, num);
+}
+

@@ -36,6 +36,11 @@ void BGM::play(const std::u8string& file)
 	SetVolumeMusic(volume);
 }
 
+void BGM::stop()
+{
+	StopMusic();
+}
+
 bool BGM::update()
 {
 	// ‚à‚µ‹È‚ªÄ¶‚³‚ê‚Ä‚¢‚È‚©‚Á‚½‚ç

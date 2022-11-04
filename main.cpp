@@ -8,7 +8,7 @@
 Point<int> Application::WindowSize = {600,1024};
 int Application::WindowColorBit = 32;
 const char8_t* Application::Title = u8"Zero to 0";
-const float Application::Ver = 0.22f;
+const float Application::Ver = 0.68f;
 
 std::mt19937 engine(std::random_device{}());
 

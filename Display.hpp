@@ -37,6 +37,7 @@ class Display
 		void set(int level, int time, float power);
 		// •ûŒü‚ğw’è‚µ‚Ä³Œ·”g1‰ñ
 		void set(int level, int time, const Point<float>& dir);
+		void reset();
 		// U“®—Ê‚ğXV
 		bool update();
 		// U“®—Ê‚ğæ“¾

@@ -27,6 +27,7 @@ public:
 	static void set(const char8_t* file);
 	static void play(size_t id);
 	static void play(const std::u8string& file);
+	static void stop();
 	static bool update();
 	static void ChangeVolume(unsigned char v);
 };

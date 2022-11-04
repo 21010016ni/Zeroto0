@@ -19,8 +19,11 @@ class Manager
 
 	static inline int font;
 	static inline int back;
+	static inline int demo;
 	static Display display;
 	static Display ui;
+
+	static std::vector<int> cont;
 
 	static inline int var[3] = {0,0,0};
 
@@ -37,6 +40,9 @@ public:
 	static inline std::shared_ptr<Object> player;
 
 	static inline Volume volume;
+
+	static bool save();
+	static bool load();
 
 	static void preset();
 	static bool update();

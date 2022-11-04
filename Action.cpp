@@ -3,6 +3,7 @@
 
 #include "Display.hpp"
 #include "Text.hpp"
+#include "Effect.hpp"
 #include "convert_string.hpp"
 #include <iostream>
 
@@ -231,6 +232,7 @@ std::unordered_map<int, Action::ValueDouble> Action::commonActionDouble =
 		return false;
 	}},
 	{item_use + 2,[](Object& u,Object& t) {	// 殴る
+		Effect::set(1,700,300,Effect::Pos::center);
 		t.damage(static_cast<int>(u.status->second.atk* (u.has(Status::State::arousal) ? 1.3f : 1.0f)));
 		u.status->second.cool = 60;
 		return true;
@@ -243,41 +245,49 @@ std::unordered_map<int, Action::ValueDouble> Action::commonActionDouble =
 		return true;
 	}},
 	{item_use + 200,[](Object& u,Object& t) {	// 錆びた短剣
+		Effect::set(0,700,300,Effect::Pos::center);
 		t.damage(static_cast<int>(u.status->second.atk* (u.has(Status::State::arousal) ? 1.3f : 1.0f)));
 		u.status->second.cool = 40;
 		return true;
 	}},
 	{item_use + 201,[](Object& u,Object& t) {	// ショートソード
+		Effect::set(0,700,300,Effect::Pos::center);
 		t.damage(static_cast<int>((u.status->second.atk * 1.1f + 6)* (u.has(Status::State::arousal) ? 1.3f : 1.0f)));
 		u.status->second.cool = 50;
 		return true;
 	}},
 	{item_use + 202,[](Object& u,Object& t) {	// ハンドアックス
+		Effect::set(3,700,300,Effect::Pos::center);
 		t.damage(static_cast<int>((u.status->second.atk * 1.8f + 1)* (u.has(Status::State::arousal) ? 1.3f : 1.0f)));
 		u.status->second.cool = 90;
 		return true;
 	}},
 	{item_use + 203,[](Object& u,Object& t) {	// ショートスピア
+		Effect::set(2,700,300,Effect::Pos::center);
 		t.damage(static_cast<int>((u.status->second.atk * 1.1f + 3)* (u.has(Status::State::arousal) ? 1.3f : 1.0f)));
 		u.status->second.cool = 70;
 		return true;
 	}},
 	{item_use + 204,[](Object& u,Object& t) {	// レイピア
+		Effect::set(4,700,300,Effect::Pos::center);
 		t.damage(static_cast<int>((u.status->second.atk * 1.5f + 9)* (u.has(Status::State::arousal) ? 1.3f : 1.0f)));
 		u.status->second.cool = 50;
 		return true;
 	}},
 	{item_use + 205,[](Object& u,Object& t) {	// バトルアックス
+		Effect::set(3,700,300,Effect::Pos::center);
 		t.damage(static_cast<int>((u.status->second.atk * 2.7f + 4)* (u.has(Status::State::arousal) ? 1.3f : 1.0f)));
 		u.status->second.cool = 90;
 		return true;
 	}},
 	{item_use + 206,[](Object& u,Object& t) {	// ハルバード
+		Effect::set(6,700,300,Effect::Pos::center);
 		t.damage(static_cast<int>((u.status->second.atk * 1.6f + 3)* (u.has(Status::State::arousal) ? 1.3f : 1.0f)));
 		u.status->second.cool = 70;
 		return true;
 	}},
 	{item_use + 207,[](Object& u,Object& t) {	// グラディウス
+		Effect::set(0,700,300,Effect::Pos::center);
 		t.damage(static_cast<int>((u.status->second.atk * 2.2f + 11) * (u.has(Status::State::arousal) ? 1.3f : 1.0f)));
 		u.status->second.cool = 40;
 		return true;

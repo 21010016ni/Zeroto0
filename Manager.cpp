@@ -1,4 +1,5 @@
 ﻿#include "Manager.hpp"
+#include <fstream>
 #include <DxLib.h>
 #include "Icon.hpp"
 #include "BGM.hpp"
@@ -14,14 +15,51 @@
 #include "Particle.hpp"
 #include "Popup.hpp"
 
-#include <iostream>
-
 Display Manager::display({0,0}, Application::WindowSize, 0);
 Display Manager::ui({0,0}, Application::WindowSize, 2);
+
+std::vector<int> Manager::cont = {
+	0,1,2,300,301,302,303,304,305
+};
 
 extern std::mt19937 engine;
 
 #define DemoStart 1200
+
+bool Manager::save()
+{
+	std::ofstream ofs("data/save.dat", std::ios::binary);
+	if (!ofs.is_open())
+		return false;
+	unsigned char size = 0;
+	ofs.write(reinterpret_cast<const char*>(&(size = static_cast<unsigned char>(player->status->first->item.size()))), 1);
+	for (const auto& i : player->status->first->item)
+	{
+		ofs.write(reinterpret_cast<const char*>(&i.first), 4);
+		ofs.write(reinterpret_cast<const char*>(&i.second), 4);
+	}
+	ofs.close();
+	return true;
+}
+
+bool Manager::load()
+{
+	std::ifstream ifs("data/save.dat", std::ios::binary);
+	if (!ifs.is_open())
+		return false;
+	player->status->first->item.clear();
+	unsigned char size = 0;
+	int buf0 = 0, buf1 = 0;
+	ifs.read(reinterpret_cast<char*>(&size), 1);
+	for (unsigned char i = 0; i < size; ++i)
+	{
+		ifs.read(reinterpret_cast<char*>(&buf0), 4);
+		ifs.read(reinterpret_cast<char*>(&buf1), 4);
+		player->status->first->item.emplace(buf0, buf1);
+	}
+	ifs.close();
+	return true;
+}
 
 void Manager::preset()
 {
@@ -35,16 +73,16 @@ void Manager::preset()
 	BGM::set(u8"data/bgm/レイト・ナイト・スノウ.mp3");
 	BGM::set(u8"data/bgm/深海魚の遊泳.mp3");
 
-	Effect::load(LoadGraph("data/effect/pipo-btleffect001.png"), 5, 1, LoadSoundMem((const char*)u8"data/se/刀剣・斬る01.mp3")); 
+	demo = LoadGraph("data/movie/demo.mp4");
 
-	static Player pl_status(u8"ゼロ", 20, 10, 7, 5, 30, u8"data/picture/sibyl.png", 0, {}, 0);
-	player = Field::set(new Object(0, &pl_status));
-	Field::set(new Object(50, &(DataBase::enemy.find(200)->second)));
-	static_cast<Player*>(player->status->first)->shortcut[0x2a] = 0;
-	player->status->second.item.emplace(0, -1);
-	player->status->second.item.emplace(2, -1);
-	player->status->second.item.emplace(103, 1);
-	player->status->second.item.emplace(200, 6);
+	Effect::load(LoadGraph("data/effect/pipo-btleffect001.png"), 5, 1, 2, LoadSoundMem((const char*)u8"data/se/刀剣・斬る01.mp3")); 
+	Effect::load(LoadGraph("data/effect/pipo-btleffect002.png"), 9, 1, 2, LoadSoundMem((const char*)u8"data/se/刀剣・斬る01.mp3"));
+	Effect::load(LoadGraph("data/effect/pipo-btleffect003.png"), 5, 1, 2, LoadSoundMem((const char*)u8"data/se/刀剣・斬る01.mp3"));
+	Effect::load(LoadGraph("data/effect/pipo-btleffect004.png"), 7, 1, 2, LoadSoundMem((const char*)u8"data/se/刀剣・斬る01.mp3"));
+	Effect::load(LoadGraph("data/effect/pipo-btleffect005.png"), 9, 1, 2, LoadSoundMem((const char*)u8"data/se/刀剣・斬る01.mp3"));
+	Effect::load(LoadGraph("data/effect/pipo-btleffect005_.png"), 9, 1, 2, LoadSoundMem((const char*)u8"data/se/刀剣・斬る01.mp3"));
+	Effect::load(LoadGraph("data/effect/pipo-btleffect006.png"), 7, 1, 2, LoadSoundMem((const char*)u8"data/se/刀剣・斬る01.mp3"));
+	Effect::load(LoadGraph("data/effect/pipo-btleffect006_.png"), 7, 1, 2, LoadSoundMem((const char*)u8"data/se/刀剣・斬る01.mp3"));
 
 	volume.mute &= 0b11111110;
 	volume.bgm = 128;
@@ -92,9 +130,31 @@ bool Manager::update()
 				if (var[1] == 0)
 				{
 					var[1] = 1;
+					// BGM再生
 					BGM::play(1);
+					// パーティクルリセット
 					ParticleSystem::reset();
 					ParticleSystem::add<Dust>(20);
+					// プレイヤーのステータスリセット
+					player = Field::set(new Object(0, &DataBase::player, -1));
+					// アイテム読み込み
+					if (!load())
+					{
+						player->status->first->item[0] = -1;
+						player->status->first->item[2] = -1;
+						player->status->first->item[200] = 6;
+						save();
+					}
+					// アイテム登録
+					player->reset(-1);
+					// ショートカット
+					static_cast<Player*>(player->status->first)->shortcut[0x2a] = 0;
+					static_cast<Player*>(player->status->first)->shortcut[0x28] = 2;
+					static_cast<Player*>(player->status->first)->shortcut[0x13] = 200;
+
+					// フィールドセット
+					Field::set(new Object(50, &(DataBase::enemy.find(200)->second), 0));
+
 					gameState = GameState::play;
 				}
 				else if (var[1] == 1)
@@ -189,7 +249,7 @@ bool Manager::update()
 				// 敵追加
 				if (!std::uniform_int_distribution{ 0,3 }(engine))
 				{
-					Field::set(new Object(player->pos + player->status->first->range, &(DataBase::enemy.find(__min(player->pos / 60, 4))->second)));
+					Field::set(new Object(player->pos + player->status->first->range, &(DataBase::enemy.find(__min(player->pos / 60, 4))->second), 4));
 				}
 
 				Display::shake.set(0, 8, {4.0f,0.0f});
@@ -266,12 +326,29 @@ bool Manager::update()
 		{
 			TextManager::reset();
 			// フィールドのリセット
-			// 振動のリセット
-			// BGM
-			// プレイヤーの所持アイテム
-			// プレイヤーのステータス
+			Field::reset();
+			// プレイヤーの所持アイテム引継ぎ登録
+			for (const auto& i : cont)
+			{
+				auto itemBuf = player->status->second.item.find(i);
+				if (itemBuf != player->status->second.item.end())
+					player->status->first->item[i] = itemBuf->second;
+			}
+			save();
 			// ショートカット
+			for (auto& i : static_cast<Player*>(player->status->first)->shortcut)
+				i = -1;
 			// パーティクル
+			ParticleSystem::reset();
+			ParticleSystem::add<Dust>(20);
+			// インベントリ
+			Inventory::active = false;
+			// 振動のリセット
+			Display::shake.reset();
+			// BGM
+			BGM::play(0);
+			// 選択位置
+			var[0] = 0;
 			gameState = GameState::title;
 		}
 	}
@@ -300,9 +377,11 @@ void Manager::draw()
 	{
 		if (var[2] > DemoStart + 64)
 		{
-			var[0] = std::sin((var[2] % 180) * 3.1415927f / 180) * 240 + 64;
+			var[0] = static_cast<int>(std::sin((var[2] % 180) * 3.1415927f / 180) * 240) + 64;
 			var[0] = __min(var[0], 255);
 			SetDrawBlendMode(DX_BLENDMODE_ALPHA, (var[2] - DemoStart - 64) * 4);
+			//if ()
+				PlayMovieToGraph(demo);
 			ui.DrawRawString(512, 300, u8"Demo mode", GetColor(var[0], var[0], var[0]), Ref::center | Ref::middle);
 		}
 		else
@@ -333,7 +412,7 @@ void Manager::draw()
 
 		// HUD
 		ui.DrawBox(5, 5, {26,400}, 0xff134b13, true);
-		ui.DrawBox(5, 5, {26,player->status->second.hp * 400 / player->status->first->hp}, 0xff88af88, true);
+		ui.DrawBox(5, 5, { 26,__min(player->status->second.hp,player->status->first->hp) * 400 / player->status->first->hp }, 0xff88af88, true);
 		ui.DrawBox(5, 5, {26,400}, 0xff666666, false);
 		ui.DrawBox(5, 31, {5,(var[1] - player->status->second.cool) * 400 / var[1]}, 0x968412, true);
 		ui.DrawRawString(400, 8, ext::to_u8string(player->status->second.hp), 0xffffffff, Ref::right);

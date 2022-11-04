@@ -24,6 +24,15 @@ void Display::Shake::set(int l, int t, const Point<float>& d)
 	dir = d;
 	value = {0,0};
 }
+void Display::Shake::reset()
+{
+	count = 0;
+	level = 0;
+	time = 0;
+	power = 0.0f;
+	dir = { 0.0f,0.0f };
+	value = { 0,0 };
+}
 bool Display::Shake::update()
 {
 	if(time != 0 && count < time)

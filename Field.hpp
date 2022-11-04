@@ -15,6 +15,7 @@ public:
 	static std::list<std::shared_ptr<Value>>::iterator getIterator(int pos);
 	//static std::list<std::shared_ptr<Value>>::iterator getIterator(const std::shared_ptr<Value>& t);
 	static std::shared_ptr<Value> set(Value* t);
+	static void reset() { list.clear(); }
 	static std::list<std::shared_ptr<Value>>::iterator erase(std::list<std::shared_ptr<Value>>::iterator& t) { return list.erase(t); }
 	static std::list<std::shared_ptr<Value>>::iterator begin() { return list.begin(); }
 	static std::list<std::shared_ptr<Value>>::const_iterator cend() { return list.cend(); }

@@ -79,7 +79,7 @@ public:
 	std::map<int, int> item;	// 所持アイテム　敵はこれをStatusからコピーして受け取り、ドロップする
 	std::map<Status::State, int> state;	// 現在状態、secondは時間
 
-	StatusInst(const Status& t);
+	StatusInst(const Status& t, int num);
 
 	void AddItem(const std::map<int, int>& t);
 };

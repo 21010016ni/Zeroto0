@@ -5,7 +5,7 @@
 #include "Point.hpp"
 
 // コメントアウトでウィンドウのみの実行
-#define DEBUG_CONSOLE
+//#define DEBUG_CONSOLE
 
 class Application
 {
