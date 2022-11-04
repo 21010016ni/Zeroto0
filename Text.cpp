@@ -3,8 +3,8 @@
 #include <boost/algorithm/string.hpp>
 #include "convert_string.hpp"
 
-Text TextManager::player(20, 300, 400, 280, 1.0f);
-Text TextManager::partner(604, 300, 400, 280, 1.0f);
+Text TextManager::player(20, 300, 450, 280, 1.0f);
+Text TextManager::partner(554, 300, 450, 280, 1.0f);
 
 void Text::getElem(std::vector<std::u8string>& result, const std::u8string& input, size_t& off)const
 {
@@ -26,11 +26,25 @@ void Text::set(const char8_t* v)
 	textPos = 0;
 }
 
+void Text::add(const char8_t* v)
+{
+	text += v;
+}
+
+void Text::reset()
+{
+	active = false;
+	text.clear();
+	drawText.clear();
+	textPos = 0;
+	count = 0;
+}
+
 void Text::update()
 {
 	if (textPos < text.size())
 	{
-		for (count += speed; quick || count >= 0.0f; quick || (count -= 1.0f))
+		for (count += speed; quick || count >= 0.0f;)
 		{
 			if (text[textPos] == '\\')
 			{
@@ -39,7 +53,7 @@ void Text::update()
 				case 'q':	// 一括表示	次の\q、または一部の処理が出るまで
 					quick ^= true;
 					++textPos;
-					break;
+					continue;
 				case 'p':	// 一時停止	SPACE、64キー、矢印キーの入力を吸う　Shift、Ctrlは吸わない
 					// まだ
 					quick = false;
@@ -51,12 +65,12 @@ void Text::update()
 					++textPos;
 					active = true;
 					drawText.clear();
-					break;
+					continue;
 				case 'e':	// メッセージウィンドウ非表示
 					// まだ
 					++textPos;
 					active = false;
-					break;
+					continue;
 				case 'w':	// ウェイト挿入
 					quick = false;
 					getElem(elem, text, ++textPos);
@@ -81,6 +95,8 @@ void Text::update()
 			}
 			for (int i = GetCharBytes(DX_CHARCODEFORMAT_UTF8, &text[textPos]); i > 0; --i)
 				drawText.push_back(text[textPos++]);
+			if (!quick)
+				count -= 1.0f;
 			if (textPos >= text.size())
 				break;
 		}

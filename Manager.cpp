@@ -262,10 +262,18 @@ bool Manager::update()
 	}
 	else if(gameState == GameState::over)
 	{
-		//if (Keyboard::press())
-		//{
-		//	gameState = GameState::title;
-		//}
+		if (Keyboard::push())
+		{
+			TextManager::reset();
+			// フィールドのリセット
+			// 振動のリセット
+			// BGM
+			// プレイヤーの所持アイテム
+			// プレイヤーのステータス
+			// ショートカット
+			// パーティクル
+			gameState = GameState::title;
+		}
 	}
 
 	TextManager::update();

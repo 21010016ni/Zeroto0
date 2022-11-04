@@ -40,6 +40,13 @@ public:
 				return true;
 		return false;
 	}
+	static bool push()
+	{
+		for (BYTE i = 0; i < 240; ++i)
+			if (push(i))
+				return true;
+		return false;
+	}
 };
 
 class Mouse

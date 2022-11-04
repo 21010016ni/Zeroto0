@@ -22,6 +22,8 @@ public:
 	Text(int x, int y, int w, int h, float speed) :display({y,x}, {h,w}, 1), speed(speed), count(0.0f), quick(false), active(false), textPos(INT64_MAX) {}
 
 	void set(const char8_t* v);
+	void add(const char8_t* v);
+	void reset();
 	void update();
 	void draw()const;
 };
@@ -36,6 +38,11 @@ public:
 	{
 		player.update();
 		partner.update();
+	}
+	static void reset()
+	{
+		player.reset();
+		partner.reset();
 	}
 	static void draw()
 	{

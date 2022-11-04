@@ -51,6 +51,10 @@ std::unordered_map<int, Action::ValueSingle> Action::commonActionSingle =
 		//TextManager::player.set(u8R"(\bDebug:オブジェクトに接触した\w9\e)");
 		return true;
 	}},
+	{killed,[](Object& u) {	// 倒された
+		TextManager::player.add(u8R"(\bふらり、体が崩れる。\w4\n視界が歪む、体が熱いような、冷たいような奇妙な感覚。\w6\n\nやがて床が目の前に猛烈な勢いで迫る。\w6\n違う、己が倒れているのだ。\w4\n\n……呆気なく、こうして倒れた。\w6\n死んだ。\w9\n\n（何れかのキーでタイトルへ戻る）\w9\w9\e)");
+		return true;
+	}},
 	{-2,[](Object& u) {	// アイテム未設定
 		TextManager::player.set(u8R"(\b……使い方が分からない。\w9\e)");
 		return false;
@@ -95,9 +99,12 @@ std::unordered_map<int, Action::ValueSingle> Action::commonActionSingle =
 		return true;
 	}},
 	{item_use + 103,[](Object& u) {	// 毒薬
-		if((u.status->second.hp -= 80) <= 0)
-			u.status->second.flag |= 4;
 		TextManager::player.set(u8R"(\b毒薬を飲み干し、80のダメージを受けた。\w9\e)");
+		if ((u.status->second.hp -= 80) <= 0)
+		{
+			u.status->second.flag |= 4;
+			Action::execute(killed, u);
+		}
 		u.status->second.cool = 60;
 		return true;
 	}},
@@ -197,11 +204,10 @@ std::unordered_map<int, Action::ValueSingle> Action::commonActionSingle =
 		}
 		else
 		{
-			if(!(**i) || (*i)->status->second.flag & 1)
+			if (!(**i) || (*i)->status->second.flag & 1)
 			{
 				u.pos -= u.status->second.speedFront;
-				auto j = Field::getIterator(u.pos);
-				std::iter_swap(i, j);
+				std::iter_swap(i, Field::getIterator(u.pos));
 			}
 			else
 			{
@@ -215,6 +221,10 @@ std::unordered_map<int, Action::ValueSingle> Action::commonActionSingle =
 
 std::unordered_map<int, Action::ValueDouble> Action::commonActionDouble =
 {
+	{killed,[](Object& u,Object& t) {	// 倒された
+		TextManager::player.add(u8R"(\b重い衝撃を腹に喰らい、吹き飛ばされてその先で嘔吐く。\w4\n吐いた唾に血が混じった。\w2それが止まらない。\w6\n何度も吐いて、やがて内容物より血の占める割合の方が多くなった。\w4\n\nぐらり、視界が歪む。ぼやけた世界の中で影が目の前に迫る。\w6\n何かを振りかぶる。\w4\n……………………\w9\n\n（何れかのキーでタイトルへ戻る）\w9\w9\e)");
+		return true;
+	}},
 	{item_use + 1,[](Object& u,Object&) {	// 話す
 		TextManager::partner.set(u8R"(\bそれは言葉を返さない。\w9\e)");
 		u.status->second.cool = 20;
@@ -273,8 +283,18 @@ std::unordered_map<int, Action::ValueDouble> Action::commonActionDouble =
 		return true;
 	}},
 	{enemy_action + 0,[](Object& u,Object& t) {	// 攻撃
-		t.damage(static_cast<int>(u.status->second.atk* (u.has(Status::State::arousal) ? 1.3f : 1.0f)));
-		Display::shake.set(1, 8, 6.0f);
+		if (t.status->first->type == Status::Type::player)
+		{
+			t.damage(static_cast<int>(u.status->second.atk* (u.has(Status::State::arousal) ? 1.3f : 1.0f)));
+			if (t.status->second.flag & 4)
+				u.execute(killed, t);
+			Display::shake.set(1, 8, 6.0f);
+		}
+		else
+		{
+			u.pos -= u.status->second.speedFront;
+			std::iter_swap(Field::getIterator(u.pos), Field::getIterator(t.pos));
+		}
 		u.status->second.cool = 120;	// 仮
 		return true;
 	}},
