@@ -173,6 +173,8 @@ bool Manager::update()
 		}
 		else if (Keyboard::press())
 		{
+			PauseMovieToGraph(demo);
+			SeekMovieToGraph(demo, 0);
 			var[2] = 0;
 			var[0] = 0;
 		}
@@ -380,8 +382,15 @@ void Manager::draw()
 			var[0] = static_cast<int>(std::sin((var[2] % 180) * 3.1415927f / 180) * 240) + 64;
 			var[0] = __min(var[0], 255);
 			SetDrawBlendMode(DX_BLENDMODE_ALPHA, (var[2] - DemoStart - 64) * 4);
-			//if ()
+			if(GetMovieStateToGraph(demo) == 0)
+			{
+				SeekMovieToGraph(demo, 0);
 				PlayMovieToGraph(demo);
+			}
+			DrawExtendGraph(0, 0, 1024, 600, demo, false);
+			SetDrawBlendMode(DX_BLENDMODE_MUL, 64);
+			ui.DrawBox(0, 0, {600,1024}, 0xff888888, true);
+			SetDrawBlendMode(DX_BLENDMODE_ALPHA, (var[2] - DemoStart - 64) * 4);
 			ui.DrawRawString(512, 300, u8"Demo mode", GetColor(var[0], var[0], var[0]), Ref::center | Ref::middle);
 		}
 		else
