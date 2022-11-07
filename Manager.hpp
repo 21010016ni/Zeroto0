@@ -19,7 +19,6 @@ class Manager
 
 	static inline int font;
 	static inline int back;
-	static inline int demo;
 	static Display display;
 	static Display ui;
 

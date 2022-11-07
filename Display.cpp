@@ -72,6 +72,11 @@ int Display::Shake::x(int l)const
 		return 0;
 }
 
+int Display::GetTextWidth(const std::u8string& v)
+{
+	return GetDrawStringWidthToHandle(ext::tochar(v), v.size(), font);
+}
+
 void Display::DrawGraph(const Point<int>& dst, int handle, bool TransFlag, unsigned char ref)const
 {
 	DrawGraph(dst.x, dst.y, handle, TransFlag, ref);

@@ -73,8 +73,6 @@ void Manager::preset()
 	BGM::set(u8"data/bgm/レイト・ナイト・スノウ.mp3");
 	BGM::set(u8"data/bgm/深海魚の遊泳.mp3");
 
-	demo = LoadGraph("data/movie/demo.mp4");
-
 	Effect::load(LoadGraph("data/effect/pipo-btleffect001.png"), 5, 1, 2, LoadSoundMem((const char*)u8"data/se/刀剣・斬る01.mp3")); 
 	Effect::load(LoadGraph("data/effect/pipo-btleffect002.png"), 9, 1, 2, LoadSoundMem((const char*)u8"data/se/刀剣・斬る01.mp3"));
 	Effect::load(LoadGraph("data/effect/pipo-btleffect003.png"), 5, 1, 2, LoadSoundMem((const char*)u8"data/se/刀剣・斬る01.mp3"));
@@ -173,8 +171,8 @@ bool Manager::update()
 		}
 		else if (Keyboard::press())
 		{
-			PauseMovieToGraph(demo);
-			SeekMovieToGraph(demo, 0);
+			PauseMovieToGraph(HandleManager::get(u8"data/movie/demo.mp4", HandleManager::Type::graph));
+			SeekMovieToGraph(HandleManager::get(u8"data/movie/demo.mp4", HandleManager::Type::graph), 0);
 			var[2] = 0;
 			var[0] = 0;
 		}
@@ -382,12 +380,12 @@ void Manager::draw()
 			var[0] = static_cast<int>(std::sin((var[2] % 180) * 3.1415927f / 180) * 240) + 64;
 			var[0] = __min(var[0], 255);
 			SetDrawBlendMode(DX_BLENDMODE_ALPHA, (var[2] - DemoStart - 64) * 4);
-			if(GetMovieStateToGraph(demo) == 0)
+			if(GetMovieStateToGraph(HandleManager::get(u8"data/movie/demo.mp4", HandleManager::Type::graph)) == 0)
 			{
-				SeekMovieToGraph(demo, 0);
-				PlayMovieToGraph(demo);
+				SeekMovieToGraph(HandleManager::get(u8"data/movie/demo.mp4", HandleManager::Type::graph), 0);
+				PlayMovieToGraph(HandleManager::get(u8"data/movie/demo.mp4", HandleManager::Type::graph));
 			}
-			DrawExtendGraph(0, 0, 1024, 600, demo, false);
+			DrawExtendGraph(0, 0, 1024, 600, HandleManager::get(u8"data/movie/demo.mp4", HandleManager::Type::graph), false);
 			SetDrawBlendMode(DX_BLENDMODE_MUL, 64);
 			ui.DrawBox(0, 0, {600,1024}, 0xff888888, true);
 			SetDrawBlendMode(DX_BLENDMODE_ALPHA, (var[2] - DemoStart - 64) * 4);
@@ -396,6 +394,8 @@ void Manager::draw()
 		else
 		{
 			SetDrawBlendMode(DX_BLENDMODE_ALPHA, 255 - (var[2] - DemoStart) * 4);
+			ui.DrawGraph(100, 100, (std::uniform_int_distribution{ 0,180 }(engine)) ? HandleManager::get(u8"data/picture/title.png",HandleManager::Type::graph) : HandleManager::get(u8"data/picture/titleb.png", HandleManager::Type::graph), true);
+			ui.DrawRawString(10, 590, u8"Spaceで決定 / ↑↓で選択", 0xffa4a4a4, Ref::under);
 			ui.DrawRawString(1000, 300, u8"Start", (var[1] == 0) ? 0xffffffff : 0xffa4a4a4, Ref::right);
 			ui.DrawRawString(900, 380, u8"Config", (var[1] == 1) ? 0xffffffff : 0xffa4a4a4, Ref::right);
 			ui.DrawRawString(800, 460, u8"Quit", (var[1] == 2) ? 0xffffffff : 0xffa4a4a4, Ref::right);

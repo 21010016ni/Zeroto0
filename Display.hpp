@@ -65,6 +65,8 @@ public:
 		return fontSize;
 	}
 
+	static int GetTextWidth(const std::u8string& v);
+
 	Point<int> localize(const Point<int>& t)const { return t - pos; }
 	bool hit(const Point<int>& t)const { return pos.y <= t.y && t.y < pos.y + siz.y && pos.x <= t.x && t.x < pos.x + siz.x; }
 
