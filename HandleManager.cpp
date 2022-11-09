@@ -2,9 +2,9 @@
 #include <DxLib.h>
 #include "convert_string.hpp"
 
-int HandleManager::value = 3600;
+int Handle::value = 3600;
 
-void HandleManager::update()
+void Handle::update()
 {
 	for (auto i = handle.cbegin(); i != handle.cend();)
 	{
@@ -17,8 +17,10 @@ void HandleManager::update()
 	}
 }
 
-int HandleManager::get(const std::u8string& key, Type type)
+int Handle::get(const std::u8string& key, Type type)
 {
+	if(key.empty())
+		return -1;
 	auto i = handle.find(key);
 	if (i == handle.cend())
 	{
@@ -45,7 +47,7 @@ int HandleManager::get(const std::u8string& key, Type type)
 	}
 }
 
-HandleManager::Data::~Data()
+Handle::Data::~Data()
 {
 	switch (type)
 	{

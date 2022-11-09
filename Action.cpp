@@ -5,7 +5,6 @@
 #include "Text.hpp"
 #include "Effect.hpp"
 #include "convert_string.hpp"
-#include <iostream>
 
 bool Action::execute(int id, Object& user, Object& target)
 {
@@ -298,6 +297,7 @@ std::unordered_map<int, Action::ValueDouble> Action::commonActionDouble =
 			t.damage(static_cast<int>(u.status->second.atk* (u.has(Status::State::arousal) ? 1.3f : 1.0f)));
 			if (t.status->second.flag & 4)
 				u.execute(killed, t);
+			Effect::set(10, 0, 0, Effect::Pos::leftup);
 			Display::shake.set(1, 8, 6.0f);
 		}
 		else

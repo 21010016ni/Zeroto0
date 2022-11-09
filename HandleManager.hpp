@@ -3,7 +3,7 @@
 #include <string>
 #include <map>
 
-class HandleManager
+class Handle
 {
 public:
 	enum class Type :char

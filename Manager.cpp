@@ -74,17 +74,21 @@ void Manager::preset()
 	BGM::set(u8"data/bgm/レイト・ナイト・スノウ.mp3");
 	BGM::set(u8"data/bgm/深海魚の遊泳.mp3");
 
-	Effect::load(LoadGraph("data/effect/pipo-btleffect001.png"), 5, 1, 2, LoadSoundMem((const char*)u8"data/se/刀剣・斬る01.mp3")); 
-	Effect::load(LoadGraph("data/effect/pipo-btleffect002.png"), 9, 1, 2, LoadSoundMem((const char*)u8"data/se/刀剣・斬る01.mp3"));
-	Effect::load(LoadGraph("data/effect/pipo-btleffect003.png"), 5, 1, 2, LoadSoundMem((const char*)u8"data/se/刀剣・斬る01.mp3"));
-	Effect::load(LoadGraph("data/effect/pipo-btleffect004.png"), 7, 1, 2, LoadSoundMem((const char*)u8"data/se/刀剣・斬る01.mp3"));
-	Effect::load(LoadGraph("data/effect/pipo-btleffect005.png"), 9, 1, 2, LoadSoundMem((const char*)u8"data/se/刀剣・斬る01.mp3"));
-	Effect::load(LoadGraph("data/effect/pipo-btleffect005_.png"), 9, 1, 2, LoadSoundMem((const char*)u8"data/se/刀剣・斬る01.mp3"));
-	Effect::load(LoadGraph("data/effect/pipo-btleffect006.png"), 7, 1, 2, LoadSoundMem((const char*)u8"data/se/刀剣・斬る01.mp3"));
-	Effect::load(LoadGraph("data/effect/pipo-btleffect006_.png"), 7, 1, 2, LoadSoundMem((const char*)u8"data/se/刀剣・斬る01.mp3"));
+	Effect::load(u8"data/effect/pipo-btleffect001.png", 5, 1, 2, u8"data/se/刀剣・斬る01.mp3"); 
+	Effect::load(u8"data/effect/pipo-btleffect002.png", 9, 1, 2, u8"data/se/middle_punch3.mp3");
+	Effect::load(u8"data/effect/pipo-btleffect003.png", 5, 1, 2, u8"data/se/打撃2.mp3");
+	Effect::load(u8"data/effect/pipo-btleffect004.png", 7, 1, 2, u8"data/se/打撃5.mp3");
+	Effect::load(u8"data/effect/pipo-btleffect005.png", 9, 1, 2, u8"data/se/swish1_3.mp3");
+	Effect::load(u8"data/effect/pipo-btleffect005_.png", 9, 1, 2,u8"data/se/swish1_3.mp3");
+	Effect::load(u8"data/effect/pipo-btleffect006.png", 7, 1, 2, u8"data/se/鞭を振り回す1.mp3");
+	Effect::load(u8"data/effect/pipo-btleffect006_.png", 7, 1, 2,u8"data/se/鞭を振り回す1.mp3");
+	Effect::load(u8"data/se/パンチの衣擦れ1.mp3");
+	Effect::load(u8"data/se/パンチの衣擦れ2.mp3");
+	Effect::load(u8"data/se/重いパンチ2.mp3");
 
-	volume.mute &= 0b11111110;
+	volume.mute &= 0b11111011;
 	volume.bgm = 128;
+	volume.se = 64;
 
 	BGM::volume = volume.GetBGM();
 	Effect::volume = volume.GetSE();
@@ -176,8 +180,8 @@ bool Manager::update()
 		}
 		else if (Keyboard::press())
 		{
-			PauseMovieToGraph(HandleManager::get(u8"data/movie/demo.mp4", HandleManager::Type::graph));
-			SeekMovieToGraph(HandleManager::get(u8"data/movie/demo.mp4", HandleManager::Type::graph), 0);
+			PauseMovieToGraph(Handle::get(u8"data/movie/demo.mp4", Handle::Type::graph));
+			SeekMovieToGraph(Handle::get(u8"data/movie/demo.mp4", Handle::Type::graph), 0);
 			var[2] = 0;
 			var[0] = 0;
 		}
@@ -386,6 +390,8 @@ bool Manager::update()
 					Field::set(new Object(player->pos + player->status->first->range, &(DataBase::enemy.find(__min(player->pos / 60, 4))->second), 4));
 				}
 
+				Effect::set(8, 0, 0, Effect::Pos::leftup);
+
 				Display::shake.set(0, 8, {4.0f,0.0f});
 				player->status->second.cool = 20;	// 仮
 			}
@@ -399,8 +405,42 @@ bool Manager::update()
 					auto j = Field::getIterator(player->pos);
 					std::iter_swap(i, j);
 				}
+
+				Effect::set(9, 0, 0, Effect::Pos::leftup);
+
 				Display::shake.set(0, 8, {4.0f,0.0f});
 				player->status->second.cool = 20;	// 仮
+			}
+			else if(Keyboard::push(VK_F12))
+			{
+				// タイトルに戻る
+				TextManager::reset();
+				// フィールドのリセット
+				Field::reset();
+				// プレイヤーの所持アイテム引継ぎ登録
+				for(const auto& i : cont)
+				{
+					auto itemBuf = player->status->second.item.find(i);
+					if(itemBuf != player->status->second.item.end())
+						player->status->first->item[i] = itemBuf->second;
+				}
+				save();
+				// ショートカット
+				for(auto& i : static_cast<Player*>(player->status->first)->shortcut)
+					i = -1;
+				// パーティクル
+				ParticleSystem::reset();
+				ParticleSystem::add<Dust>(20);
+				// インベントリ
+				Inventory::active = false;
+				// 振動のリセット
+				Display::shake.reset();
+				// BGM
+				BGM::play(0);
+				// 選択位置
+				var[0] = 0;
+				var[1] = 0;
+				gameState = GameState::title;
 			}
 			else
 			{
@@ -499,7 +539,7 @@ bool Manager::update()
 	// BGM更新処理
 	BGM::update();
 	// ハンドル管理更新
-	HandleManager::update();
+	Handle::update();
 	// ディスプレイ振動更新
 	Display::shake.update();
 
@@ -515,12 +555,12 @@ void Manager::draw()
 			var[0] = static_cast<int>(std::sin((var[2] % 180) * 3.1415927f / 180) * 240) + 64;
 			var[0] = __min(var[0], 255);
 			SetDrawBlendMode(DX_BLENDMODE_ALPHA, (var[2] - DemoStart - 64) * 4);
-			if(GetMovieStateToGraph(HandleManager::get(u8"data/movie/demo.mp4", HandleManager::Type::graph)) == 0)
+			if(GetMovieStateToGraph(Handle::get(u8"data/movie/demo.mp4", Handle::Type::graph)) == 0)
 			{
-				SeekMovieToGraph(HandleManager::get(u8"data/movie/demo.mp4", HandleManager::Type::graph), 0);
-				PlayMovieToGraph(HandleManager::get(u8"data/movie/demo.mp4", HandleManager::Type::graph));
+				SeekMovieToGraph(Handle::get(u8"data/movie/demo.mp4", Handle::Type::graph), 0);
+				PlayMovieToGraph(Handle::get(u8"data/movie/demo.mp4", Handle::Type::graph));
 			}
-			DrawExtendGraph(0, 0, 1024, 600, HandleManager::get(u8"data/movie/demo.mp4", HandleManager::Type::graph), false);
+			DrawExtendGraph(0, 0, 1024, 600, Handle::get(u8"data/movie/demo.mp4", Handle::Type::graph), false);
 			SetDrawBlendMode(DX_BLENDMODE_MUL, 64);
 			ui.DrawBox(0, 0, {600,1024}, 0xff888888, true);
 			SetDrawBlendMode(DX_BLENDMODE_ALPHA, (var[2] - DemoStart - 64) * 4);
@@ -529,7 +569,7 @@ void Manager::draw()
 		else
 		{
 			SetDrawBlendMode(DX_BLENDMODE_ALPHA, 255 - (var[2] - DemoStart) * 4);
-			ui.DrawGraph(100, 100, (std::uniform_int_distribution{ 0,180 }(engine)) ? HandleManager::get(u8"data/picture/title.png",HandleManager::Type::graph) : HandleManager::get(u8"data/picture/titleb.png", HandleManager::Type::graph), true);
+			ui.DrawGraph(100, 100, (std::uniform_int_distribution{ 0,180 }(engine)) ? Handle::get(u8"data/picture/title.png",Handle::Type::graph) : Handle::get(u8"data/picture/titleb.png", Handle::Type::graph), true);
 			ui.DrawRawString(1000, 300, u8"Start", (var[1] == 0) ? 0xffffffff : 0xffa4a4a4, Ref::right);
 			ui.DrawRawString(900, 380, u8"Config", (var[1] == 1) ? 0xffffffff : 0xffa4a4a4, Ref::right);
 			ui.DrawRawString(800, 460, u8"Quit", (var[1] == 2) ? 0xffffffff : 0xffa4a4a4, Ref::right);
@@ -566,7 +606,7 @@ void Manager::draw()
 		while(it != Field::begin() && (*--it)->pos > player->pos + player->status->first->range);
 		while((*it)->pos > player->pos && (*it)->pos <= player->pos + player->status->first->range)
 		{
-			display.DrawGraph(1024, 600, HandleManager::get((*it)->status->first->graph, HandleManager::Type::graph), true, Ref::right | Ref::under);
+			display.DrawGraph(1024, 600, Handle::get((*it)->status->first->graph, Handle::Type::graph), true, Ref::right | Ref::under);
 			if(it == Field::begin())
 				break;
 			--it;

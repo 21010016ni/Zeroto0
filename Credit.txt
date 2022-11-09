@@ -1,0 +1,25 @@
+-BGM----------
+甘茶の音楽工房 様		https://amachamusic.chagasi.com
+|夢
+|水に沈むピアノ
+|
+|
+
+-SE-----------
+効果音ラボ 様		https://soundeffect-lab.info
+無料効果音で遊ぼう！ 様	https://taira-komori.jpn.org/freesound.html
+On-Jin ～音人～ 様		https://on-jin.com
+
+
+-Graphic------
+百花繚乱 様		https://flowerillust.com
+化け猫缶 素材屋 様		http://neko.moo.jp/BS/
+
+-Library------
+DXライブラリ		https://dxlib.xsrv.jp
+Boost			https://www.boost.org
+
+-Copyright----
+libjpeg　Copyright (C) 1991-2013, Thomas G. Lane, Guido Vollbeding.
+libpng　Copyright (C) 2004, 2006-2012 Glenn Randers-Pehrson.
+zlib　Copyright (C) 1995-2012 Jean-loup Gailly and Mark Adler.

@@ -19,14 +19,14 @@ public:
 private:
 	struct Data
 	{
-		int graph;
+		std::u8string graph;
 		Point<int> size;
 		Point<int> num;
 		int wait;
-		int se;
+		std::u8string se;
 		mutable unsigned char volume;
 
-		Data(int graph, int wn, int hn, int wait, int se, unsigned char volume);
+		Data(std::u8string graph, int wn, int hn, int wait, std::u8string se, unsigned char volume);
 
 		void draw(int x, int y, int t)const;
 		void play()const;
@@ -49,8 +49,8 @@ private:
 public:
 	static inline unsigned char volume = 255;
 
-	static void load(const std::u8string& FileName);
-	static void load(int graph, int wn, int hn, int wait, int se);
+	static void load(std::u8string graph, int wn, int hn, int wait, std::u8string se);
+	static void load(std::u8string se);
 
 	static void set(int id, int x, int y, Pos pos);
 	static void play();
