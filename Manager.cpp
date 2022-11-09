@@ -1,5 +1,6 @@
 ﻿#include "Manager.hpp"
 #include <fstream>
+#include <format>
 #include <DxLib.h>
 #include "Icon.hpp"
 #include "BGM.hpp"
@@ -85,7 +86,8 @@ void Manager::preset()
 	volume.mute &= 0b11111110;
 	volume.bgm = 128;
 
-	BGM::volume = volume.Bgm() ? volume.bgm : 0;
+	BGM::volume = volume.GetBGM();
+	Effect::volume = volume.GetSE();
 
 	BGM::play(0);
 	ParticleSystem::add<Dust>(20);
@@ -157,7 +159,10 @@ bool Manager::update()
 				}
 				else if (var[1] == 1)
 				{
-
+					var[0] = 12;
+					// 選択位置
+					var[1] = 0;
+					gameState = GameState::config;
 				}
 				else if (var[1] == 2)
 				{
@@ -176,6 +181,135 @@ bool Manager::update()
 			var[2] = 0;
 			var[0] = 0;
 		}
+	}
+	else if(gameState == GameState::config)
+	{
+		--var[0];
+		if(Keyboard::push(VK_SHIFT))
+		{
+			var[0] = 12;
+			// 選択位置
+			var[1] = 1;
+			gameState = GameState::title;
+		}
+		else if(Keyboard::push(VK_UP))
+		{
+			if((--var[1]) < 0)
+				var[1] = 4 - 1;
+			var[0] = 12;
+		}
+		else if(Keyboard::press(VK_UP) && var[0] <= 0)
+		{
+			if((--var[1]) < 0)
+				var[1] = 4 - 1;
+			var[0] = 4;
+		}
+		else if(Keyboard::push(VK_DOWN))
+		{
+			var[1] = ++var[1] % 4;
+			var[0] = 12;
+		}
+		else if(Keyboard::press(VK_DOWN) && var[0] <= 0)
+		{
+			var[1] = ++var[1] % 4;
+			var[0] = 4;
+		}
+		else if(Keyboard::push(VK_LEFT))
+		{
+			switch(var[1])
+			{
+			case 0:
+				volume.master = __max(volume.master - 0.01f, 0.0f);
+				break;
+			case 1:
+				volume.bgm = __max(static_cast<short>(volume.bgm) - 1, 0);
+				break;
+			case 2:
+				volume.se = __max(static_cast<short>(volume.se) - 1, 0);
+				break;
+			case 3:
+				displayControll ^= true;
+				break;
+			}
+			var[0] = 12;
+		}
+		else if(Keyboard::press(VK_LEFT) && var[0] <= 0)
+		{
+			switch(var[1])
+			{
+			case 0:
+				volume.master = __max(volume.master + 0.01f * __max((var[0] / 6), -5), 0.0f);
+				break;
+			case 1:
+				volume.bgm = __max(static_cast<short>(volume.bgm) + 1 * __max((var[0] / 6), -10), 0);
+				break;
+			case 2:
+				volume.se = __max(static_cast<short>(volume.se) + 1 * __max((var[0] / 6), -10), 0);
+				break;
+			case 3:
+				displayControll ^= true;
+				var[0] = 4;
+				break;
+			}
+		}
+		else if(Keyboard::push(VK_RIGHT))
+		{
+			switch(var[1])
+			{
+			case 0:
+				volume.master = __min(volume.master + 0.01f, 1.0f);
+				break;
+			case 1:
+				volume.bgm = __min(static_cast<short>(volume.bgm) + 1, 255);
+				break;
+			case 2:
+				volume.se = __min(static_cast<short>(volume.se) + 1, 255);
+				break;
+			case 3:
+				displayControll ^= true;
+				break;
+			}
+			var[0] = 12;
+		}
+		else if(Keyboard::press(VK_RIGHT) && var[0] <= 0)
+		{
+			switch(var[1])
+			{
+			case 0:
+				volume.master = __min(volume.master - 0.01f * __max((var[0] / 6), -5), 1.0f);
+				break;
+			case 1:
+				volume.bgm = __min(static_cast<short>(volume.bgm) - 1 * __max((var[0] / 6), -10), 255);
+				break;
+			case 2:
+				volume.se = __min(static_cast<short>(volume.se) - 1 * __max((var[0] / 6), -10), 255);
+				break;
+			case 3:
+				displayControll ^= true;
+				var[0] = 4;
+				break;
+			}
+		}
+		else if(Keyboard::push(VK_SPACE))
+		{
+			switch(var[1])
+			{
+			case 0:
+				volume.mute ^= 0x01;
+				break;
+			case 1:
+				volume.mute ^= 0x02;
+				break;
+			case 2:
+				volume.mute ^= 0x04;
+				break;
+			case 3:
+				displayControll ^= true;
+				break;
+			}
+		}
+		BGM::ChangeVolume(volume.GetBGM());
+		Effect::volume = volume.GetSE();
 	}
 	// ゲームメイン画面処理
 	else if(gameState == GameState::play)
@@ -349,6 +483,7 @@ bool Manager::update()
 			BGM::play(0);
 			// 選択位置
 			var[0] = 0;
+			var[1] = 0;
 			gameState = GameState::title;
 		}
 	}
@@ -395,12 +530,32 @@ void Manager::draw()
 		{
 			SetDrawBlendMode(DX_BLENDMODE_ALPHA, 255 - (var[2] - DemoStart) * 4);
 			ui.DrawGraph(100, 100, (std::uniform_int_distribution{ 0,180 }(engine)) ? HandleManager::get(u8"data/picture/title.png",HandleManager::Type::graph) : HandleManager::get(u8"data/picture/titleb.png", HandleManager::Type::graph), true);
-			ui.DrawRawString(10, 590, u8"Spaceで決定 / ↑↓で選択", 0xffa4a4a4, Ref::under);
 			ui.DrawRawString(1000, 300, u8"Start", (var[1] == 0) ? 0xffffffff : 0xffa4a4a4, Ref::right);
 			ui.DrawRawString(900, 380, u8"Config", (var[1] == 1) ? 0xffffffff : 0xffa4a4a4, Ref::right);
 			ui.DrawRawString(800, 460, u8"Quit", (var[1] == 2) ? 0xffffffff : 0xffa4a4a4, Ref::right);
+			if(displayControll)
+				ui.DrawRawString(10, 590, u8"Spaceで決定 / ↑↓で選択", 0xffa4a4a4, Ref::under);
 		}
 		SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
+	}
+	else if(gameState == GameState::config)
+	{
+		ui.DrawRawString(800, 300, u8"Master Volume", (var[1] == 0) ? 0xffffffff : 0xffa4a4a4, Ref::right);
+		ui.DrawRawString(845, 300, ext::convert(std::format("{:.2f}", volume.master)), (var[1] == 0) ? 0xffffffff : 0xffa4a4a4, Ref::right);
+		if((volume.mute & 0x01) == 0)
+			ui.DrawRawString(850, 300, u8"(mute)", (var[1] == 0) ? 0xffffffff : 0xffa4a4a4);
+		ui.DrawRawString(800, 330, u8"BGM Volume", (var[1] == 1) ? 0xffffffff : 0xffa4a4a4, Ref::right);
+		ui.DrawRawString(845, 330, ext::to_u8string(volume.bgm), (var[1] == 1) ? 0xffffffff : 0xffa4a4a4, Ref::right);
+		if((volume.mute & 0x02) == 0)
+			ui.DrawRawString(850, 330, u8"(mute)", (var[1] == 1) ? 0xffffffff : 0xffa4a4a4);
+		ui.DrawRawString(800, 360, u8"SE Volume", (var[1] == 2) ? 0xffffffff : 0xffa4a4a4, Ref::right);
+		ui.DrawRawString(845, 360, ext::to_u8string(volume.se), (var[1] == 2) ? 0xffffffff : 0xffa4a4a4, Ref::right);
+		if((volume.mute & 0x04) == 0)
+			ui.DrawRawString(850, 360, u8"(mute)", (var[1] == 2) ? 0xffffffff : 0xffa4a4a4);
+		ui.DrawRawString(800, 390, u8"操作説明の表示", (var[1] == 3) ? 0xffffffff : 0xffa4a4a4, Ref::right);
+		ui.DrawRawString(845, 390, displayControll ? u8"有効" : u8"無効", (var[1] == 3) ? 0xffffffff : 0xffa4a4a4, Ref::right);
+		if(displayControll)
+			ui.DrawRawString(10, 590, u8"←→Spaceで変更 / ↑↓で選択 / Shiftでタイトルへ", 0xffa4a4a4, Ref::under);
 	}
 	else if(gameState == GameState::play)
 	{
@@ -416,8 +571,6 @@ void Manager::draw()
 				break;
 			--it;
 		}
-
-		Popup::draw();
 
 		// HUD
 		ui.DrawBox(5, 5, {26,400}, 0xff134b13, true);
@@ -465,6 +618,22 @@ void Manager::draw()
 			else if((*i)->status->first->type == Status::Type::enemy)
 				ui.DrawCircle(12 + ((*i)->pos - player->pos) * 9, 74, 7, 0xffff0000, true);
 		}
+
+		if(displayControll)
+		{
+			if(Inventory::active)
+			{
+				ui.DrawRawString(10, 570, u8"Spaceで使用 / ↑↓←→で移動 / Shiftで閉じる", 0xffa4a4a4, Ref::under);
+				ui.DrawRawString(10, 590, u8"Ctrl + 英数字キーでショートカット登録", 0xffa4a4a4, Ref::under);
+			}
+			else
+			{
+				ui.DrawRawString(10, 570, u8"Shiftでメニュー / ↑↓で移動", 0xffa4a4a4, Ref::under);
+				ui.DrawRawString(10, 590, u8"英数字キーでショートカット実行", 0xffa4a4a4, Ref::under);
+			}
+		}
+
+		Popup::draw();
 
 		Inventory::draw(player);
 	}
