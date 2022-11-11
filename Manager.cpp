@@ -157,7 +157,11 @@ bool Manager::update()
 					static_cast<Player*>(player->status->first)->shortcut[0x13] = 200;
 
 					// フィールドセット
+					Field::set(new Object(1, &(DataBase::enemy.find(201)->second), 0));
+					Field::set(new Object(10, &(DataBase::enemy.find(201)->second), 0));
+					Field::set(new Object(40, &(DataBase::enemy.find(201)->second), 0));
 					Field::set(new Object(50, &(DataBase::enemy.find(200)->second), 0));
+					Field::set(new Object(150, &(DataBase::enemy.find(201)->second), 0));
 
 					gameState = GameState::play;
 				}
@@ -467,6 +471,8 @@ bool Manager::update()
 					}
 			}
 		}
+		player->status->first->hp = __max(player->status->first->hp, player->status->second.hp);
+
 		// フィールド上にいるやつの処理
 		for(auto i = Field::begin(); i != Field::cend();)
 		{
