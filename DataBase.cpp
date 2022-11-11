@@ -8,10 +8,11 @@
 std::vector<Action> DataBase::action =
 {
 	{{
-		{Action::Key::item_use + 100,[](Object& user, Object& target) {
+		{Action::Key::item_use + 100,[](Object& u, Object& t) {
 			//target.status->second.flag |= 1;
-			target.status->second.flag |= 4;
+			t.status->second.flag |= 4;
 			TextManager::player.set(u8R"(\bŒ®‚ðŽg‚Á‚Ä”à‚ðŠJ‚¢‚½B\w9\e)");
+			u.status->second.cool = 60;
 			return true;
 		}},
 	}},

@@ -5,7 +5,7 @@
 #include "Icon.hpp"
 #include "convert_string.hpp"
 
-Display Inventory::display({160,10}, {178,540}, 1);
+Display Inventory::display({166,10}, {178,540}, 1);
 bool Inventory::active = false;
 int Inventory::column = 3;
 
@@ -179,7 +179,6 @@ void Inventory::controll(std::shared_ptr<Object>& player)
 			if((target.expired() ? Action::execute(item->second.id, *player) : target.lock()->execute(item->second.id, *player)) && it->second != -1)
 				if(--it->second == 0)
 					player->status->second.item.erase(it);
-			player->status->second.cool = 20;	// ‰¼
 		}
 	}
 	select = __min(select, (int)player->status->second.item.size() - 1);

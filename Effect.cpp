@@ -2,7 +2,7 @@
 #include <DxLib.h>
 #include "HandleManager.hpp"
 
-Effect::Data::Data(std::u8string graph, int wn, int hn, int wait, std::u8string se, unsigned char volume) :graph(graph), num(hn, wn), wait(wait), se(se), volume(volume)
+Effect::Data::Data(std::u8string graph, int wn, int hn, int wait, std::u8string se) :graph(graph), num(hn, wn), wait(wait), se(se)
 {
 	GetGraphSize(Handle::get(graph, Handle::Type::graph), &size.x, &size.y);
 	size /= num;
@@ -16,7 +16,9 @@ void Effect::Data::draw(int x, int y, int t)const
 
 void Effect::Data::play()const
 {
-	PlaySoundMem(Handle::get(se, Handle::Type::sound), DX_PLAYTYPE_BACK);
+	int handle = Handle::get(se, Handle::Type::sound);
+	ChangeVolumeSoundMem(volume, handle);
+	PlaySoundMem(handle, DX_PLAYTYPE_BACK);
 }
 
 Effect::Inst::Inst(const Data* data, int x, int y, Pos pos) :data(data), dst(y, x), time(0), pos(pos)
@@ -50,12 +52,12 @@ void Effect::Inst::play()const
 
 void Effect::load(std::u8string graph, int wn, int hn, int wait, std::u8string se)
 {
-	data.emplace_back(graph, wn, hn, wait, se, volume);
+	data.emplace_back(graph, wn, hn, wait, se);
 }
 
 void Effect::load(std::u8string se)
 {
-	data.emplace_back(u8"", 1, 1, 1, se, volume);
+	data.emplace_back(u8"", 1, 1, 1, se);
 }
 
 void Effect::set(int id, int x, int y, Pos pos)
@@ -67,11 +69,6 @@ void Effect::play()
 {
 	for(auto i = list.begin(); i != list.end();)
 	{
-		if(i->data->volume != volume)
-		{
-			ChangeVolumeSoundMem(volume, Handle::get(i->data->se, Handle::Type::sound));
-			i->data->volume = volume;
-		}
 		i->play();
 		if (++(i->time) >= i->data->size.y * i->data->size.x * i->data->wait)
 		{

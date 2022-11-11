@@ -409,7 +409,7 @@ bool Manager::update()
 				Effect::set(9, 0, 0, Effect::Pos::leftup);
 
 				Display::shake.set(0, 8, {4.0f,0.0f});
-				player->status->second.cool = 20;	// 仮
+				player->status->second.cool = 40;	// 仮
 			}
 			else if(Keyboard::push(VK_F12))
 			{
@@ -461,7 +461,6 @@ bool Manager::update()
 									if((target.expired() ? Action::execute(item->second.id, *player) : target.lock()->execute(item->second.id, *player)) && playerItem->second != -1)
 										if(--playerItem->second == 0)
 											player->status->second.item.erase(playerItem);
-									player->status->second.cool = 20;	// 仮
 								}
 							}
 						}
@@ -570,8 +569,8 @@ void Manager::draw()
 		{
 			SetDrawBlendMode(DX_BLENDMODE_ALPHA, 255 - (var[2] - DemoStart) * 4);
 			ui.DrawGraph(100, 100, (std::uniform_int_distribution{ 0,180 }(engine)) ? Handle::get(u8"data/picture/title.png",Handle::Type::graph) : Handle::get(u8"data/picture/titleb.png", Handle::Type::graph), true);
-			ui.DrawRawString(1000, 300, u8"Start", (var[1] == 0) ? 0xffffffff : 0xffa4a4a4, Ref::right);
-			ui.DrawRawString(900, 380, u8"Config", (var[1] == 1) ? 0xffffffff : 0xffa4a4a4, Ref::right);
+			ui.DrawRawString(920, 300, u8"Start", (var[1] == 0) ? 0xffffffff : 0xffa4a4a4, Ref::right);
+			ui.DrawRawString(860, 380, u8"Config", (var[1] == 1) ? 0xffffffff : 0xffa4a4a4, Ref::right);
 			ui.DrawRawString(800, 460, u8"Quit", (var[1] == 2) ? 0xffffffff : 0xffa4a4a4, Ref::right);
 			if(displayControll)
 				ui.DrawRawString(10, 590, u8"Spaceで決定 / ↑↓で選択", 0xffa4a4a4, Ref::under);
@@ -606,6 +605,7 @@ void Manager::draw()
 		while(it != Field::begin() && (*--it)->pos > player->pos + player->status->first->range);
 		while((*it)->pos > player->pos && (*it)->pos <= player->pos + player->status->first->range)
 		{
+			SetDrawBlendMode(DX_BLENDMODE_ALPHA, (player->status->first->range - (*it)->pos + player->pos + 1) * 255 / player->status->first->range);
 			display.DrawGraph(1024, 600, Handle::get((*it)->status->first->graph, Handle::Type::graph), true, Ref::right | Ref::under);
 			if(it == Field::begin())
 				break;
@@ -613,6 +613,7 @@ void Manager::draw()
 		}
 
 		// HUD
+		SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 		ui.DrawBox(5, 5, {26,400}, 0xff134b13, true);
 		ui.DrawBox(5, 5, { 26,__min(player->status->second.hp,player->status->first->hp) * 400 / player->status->first->hp }, 0xff88af88, true);
 		ui.DrawBox(5, 5, {26,400}, 0xff666666, false);
@@ -663,12 +664,12 @@ void Manager::draw()
 		{
 			if(Inventory::active)
 			{
-				ui.DrawRawString(10, 570, u8"Spaceで使用 / ↑↓←→で移動 / Shiftで閉じる", 0xffa4a4a4, Ref::under);
+				ui.DrawRawString(10, 570, u8"Spaceで使用 / ↑↓←→で選択 / Shiftで閉じる", 0xffa4a4a4, Ref::under);
 				ui.DrawRawString(10, 590, u8"Ctrl + 英数字キーでショートカット登録", 0xffa4a4a4, Ref::under);
 			}
 			else
 			{
-				ui.DrawRawString(10, 570, u8"Shiftでメニュー / ↑↓で移動", 0xffa4a4a4, Ref::under);
+				ui.DrawRawString(10, 570, u8"↑↓で移動 / Shiftでメニュー", 0xffa4a4a4, Ref::under);
 				ui.DrawRawString(10, 590, u8"英数字キーでショートカット実行", 0xffa4a4a4, Ref::under);
 			}
 		}

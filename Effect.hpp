@@ -24,9 +24,8 @@ private:
 		Point<int> num;
 		int wait;
 		std::u8string se;
-		mutable unsigned char volume;
 
-		Data(std::u8string graph, int wn, int hn, int wait, std::u8string se, unsigned char volume);
+		Data(std::u8string graph, int wn, int hn, int wait, std::u8string se);
 
 		void draw(int x, int y, int t)const;
 		void play()const;
