@@ -157,11 +157,13 @@ bool Manager::update()
 					static_cast<Player*>(player->status->first)->shortcut[0x13] = 200;
 
 					// フィールドセット
-					Field::set(new Object(1, &(DataBase::enemy.find(201)->second), 0));
-					Field::set(new Object(10, &(DataBase::enemy.find(201)->second), 0));
-					Field::set(new Object(40, &(DataBase::enemy.find(201)->second), 0));
+					Field::set(new Object(1));
+					Field::set(new Object(20));
+					Field::set(new Object(40));
 					Field::set(new Object(50, &(DataBase::enemy.find(200)->second), 0));
-					Field::set(new Object(150, &(DataBase::enemy.find(201)->second), 0));
+					Field::set(new Object(150));
+
+					DataBase::gameFlag = 0;
 
 					gameState = GameState::play;
 				}
@@ -364,13 +366,20 @@ bool Manager::update()
 			else if(Keyboard::press(VK_UP))
 			{
 				// 前進
-				auto i = Field::getIterator(player->pos, player->status->second.speedFront, true);
+				auto i = Field::getIterator(player->pos, player->status->second.speedFront, true, true);
 				if(i == Field::cend())
 				{
 					player->pos += player->status->second.speedFront;
 				}
 				else
 				{
+					// 接触時イベント
+					if (!(**i) || !static_cast<bool>((*i)->status->second.flag & 2))
+					{
+						(*i)->execute(Action::touch, *player);
+						if (**i)
+							(*i)->status->second.flag |= 2;
+					}
 					if(!(**i) || (*i)->status->second.flag & 1)
 					{
 						player->pos += player->status->second.speedFront;
@@ -380,12 +389,6 @@ bool Manager::update()
 					else
 					{
 						player->pos = (*i)->pos - 1;
-					}
-					// 接触時イベント
-					if(!static_cast<bool>((*i)->status->second.flag & 2))
-					{
-						(*i)->execute(Action::touch, *player);
-						(*i)->status->second.flag |= 2;
 					}
 				}
 				// 敵追加
@@ -477,18 +480,19 @@ bool Manager::update()
 		for(auto i = Field::begin(); i != Field::cend();)
 		{
 			// 削除
-			if((*i)->status->second.flag & 4)
+			if ((*i)->pos < player->pos || ((**i) && (*i)->status->second.flag & 4))
 			{
-				if ((*i)->status->first->type == Status::Type::player)
+				if ((*i)->type() == Status::Type::player)
 				{
 					gameState = GameState::over;
 					break;
 				}
-				player->status->second.AddItem((*i)->status->second.item);
+				if (**i)
+					player->status->second.AddItem((*i)->status->second.item);
 				i = Field::erase(i);
 				continue;
 			}
-			if ((*i)->status->first->type == Status::Type::enemy && --(*i)->status->second.cool <= 0 && static_cast<Enemy*>((*i)->status->first)->action != -1)
+			if ((*i)->type() == Status::Type::enemy && --(*i)->status->second.cool <= 0 && static_cast<Enemy*>((*i)->status->first)->action != -1)
 			{
 				auto target = Field::get((*i)->pos, -(*i)->status->first->range);
 				target.expired() ? Action::execute(static_cast<Enemy*>((*i)->status->first)->action, **i) : target.lock()->execute(static_cast<Enemy*>((*i)->status->first)->action, **i);
@@ -611,8 +615,11 @@ void Manager::draw()
 		while(it != Field::begin() && (*--it)->pos > player->pos + player->status->first->range);
 		while((*it)->pos > player->pos && (*it)->pos <= player->pos + player->status->first->range)
 		{
-			SetDrawBlendMode(DX_BLENDMODE_ALPHA, (player->status->first->range - (*it)->pos + player->pos + 1) * 255 / player->status->first->range);
-			display.DrawGraph(1024, 600, Handle::get((*it)->status->first->graph, Handle::Type::graph), true, Ref::right | Ref::under);
+			if (**it)
+			{
+				SetDrawBlendMode(DX_BLENDMODE_ALPHA, (player->status->first->range - (*it)->pos + player->pos + 1) * 255 / player->status->first->range);
+				display.DrawGraph(1024, 600, Handle::get((*it)->status->first->graph, Handle::Type::graph), true, Ref::right | Ref::under);
+			}
 			if(it == Field::begin())
 				break;
 			--it;
@@ -660,9 +667,9 @@ void Manager::draw()
 				continue;
 			if((*i)->pos > player->pos + player->status->first->range)
 				break;
-			if((*i)->status->first->type == Status::Type::player)
+			if((*i)->type() == Status::Type::player)
 				ui.DrawCircle(12 + ((*i)->pos - player->pos) * 9, 74, 6, 0xffa4a4a4, true);
-			else if((*i)->status->first->type == Status::Type::enemy)
+			else if((*i)->type() == Status::Type::enemy)
 				ui.DrawCircle(12 + ((*i)->pos - player->pos) * 9, 74, 7, 0xffff0000, true);
 		}
 
@@ -679,6 +686,29 @@ void Manager::draw()
 				ui.DrawRawString(10, 590, u8"英数字キーでショートカット実行", 0xffa4a4a4, Ref::under);
 			}
 		}
+		//for (auto i = Field::begin(); i != Field::cend(); ++i)
+		//{
+		//	printfDx("%d : ", (*i)->pos);
+		//	switch ((*i)->type())
+		//	{
+		//	case Status::Type::undefined:
+		//		printfDx("undefined");
+		//		break;
+		//	case Status::Type::player:
+		//		printfDx("player");
+		//		break;
+		//	case Status::Type::enemy:
+		//		printfDx("enemy");
+		//		break;
+		//	case Status::Type::shop:
+		//		printfDx("shop");
+		//		break;
+		//	case Status::Type::ev:
+		//		printfDx("event");
+		//		break;
+		//	}
+		//	printfDx("\n");
+		//}
 
 		Popup::draw();
 

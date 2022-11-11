@@ -19,6 +19,8 @@ public:
 		undefined,
 		player,
 		enemy,
+		shop,
+		ev,
 	} type;
 
 	std::u8string name;
@@ -62,6 +64,15 @@ public:
 	Enemy(const char8_t* name, int hp, int atk, int speedFront, int speedBack, int range, const char8_t* graph, unsigned char flag, std::map<int, int> item, int action, Action* reaction) :Status(name, hp, atk, speedFront, speedBack, range, graph, flag, item, reaction), action(action)
 	{
 		type = Type::enemy;
+	}
+};
+
+class Shop :public Status
+{
+public:
+	Shop(const char8_t* name, int hp, int atk, int speedFront, int speedBack, int range, const char8_t* graph, unsigned char flag, std::map<int, int> item, int action, Action* reaction) :Status(name, hp, atk, speedFront, speedBack, range, graph, flag, item, reaction)
+	{
+		type = Type::shop;
 	}
 };
 

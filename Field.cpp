@@ -1,39 +1,40 @@
 #include "Field.hpp"
 
-std::weak_ptr<Field::Value> Field::get(int pos, int range, bool force)
+std::weak_ptr<Field::Value> Field::get(int pos, int range, bool force,bool checkEvent)
 {
 	auto it = list.begin();
 	if(range > 0)
 	{
 		for(; it != list.end(); ++it)
-			if((*it)->pos > pos)
+			if((*it)->pos > pos && ((**it) || force) && ((*it)->type() != Status::Type::ev || checkEvent))
 				break;
-		if(it != list.end() && (*it)->pos <= pos + range && ((**it) || force))
+		if(it != list.end() && (*it)->pos <= pos + range)
 			return *it;
 		return std::weak_ptr<Value>();
 	}
 	else
 	{
-		for(; it != list.end(); ++it)
-		{
-			if((*it)->pos >= pos)
-				break;
-			else if((*it)->pos >= pos + range && (**it))
-				return *it;
-		}
+		auto it = list.end();
+		while (it != list.begin())
+			if ((*--it)->pos < pos)
+			{
+				if (((**it) || force) && ((*it)->type() != Status::Type::ev || checkEvent))
+					if ((*it)->pos >= pos + range)
+						return *it;
+			}
 		return std::weak_ptr<Value>();
 	}
 }
 
-std::list<std::shared_ptr<Field::Value>>::iterator Field::getIterator(int pos, int range, bool force)
+std::list<std::shared_ptr<Field::Value>>::iterator Field::getIterator(int pos, int range, bool force, bool checkEvent)
 {
 	if(range > 0)
 	{
 		auto it = list.begin();
 		for(; it != list.end(); ++it)
-			if((*it)->pos > pos)
+			if((*it)->pos > pos && ((**it) || force) && ((*it)->type() != Status::Type::ev || checkEvent))
 				break;
-		if(it != list.end() && (*it)->pos <= pos + range && ((**it) || force))
+		if (it != list.end() && (*it)->pos <= pos + range)
 			return it;
 		return list.end();
 	}
@@ -43,10 +44,9 @@ std::list<std::shared_ptr<Field::Value>>::iterator Field::getIterator(int pos, i
 		while (it != list.begin())
 			if ((*--it)->pos < pos)
 			{
-				if ((*it)->pos >= pos + range && ((**it) || force))
-					return it;
-				else
-					return list.end();
+				if (((**it) || force) && ((*it)->type() != Status::Type::ev || checkEvent))
+					if ((*it)->pos >= pos + range)
+						return it;
 			}
 		return list.end();
 	}

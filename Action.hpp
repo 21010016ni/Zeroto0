@@ -19,6 +19,8 @@ class Action
 	static std::unordered_map<int, ValueSingle> commonActionSingle;
 	static std::unordered_map<int, ValueDouble> commonActionDouble;
 
+	static ValueDouble touchAction;
+
 public:
 	std::unordered_map<int, ValueDouble> action;
 
@@ -36,5 +38,6 @@ public:
 	static bool execute(int id, Object& user);
 	bool execute(int id, Object& user, Object& target);
 	static bool s_execute(int id, Object& user, Object& target);
+	static bool event_touch(Object& user, Object& target);
 };
 

@@ -5,6 +5,7 @@
 #include "Text.hpp"
 #include "Effect.hpp"
 #include "convert_string.hpp"
+#include "DataBase.hpp"
 
 bool Action::execute(int id, Object& user, Object& target)
 {
@@ -21,6 +22,11 @@ bool Action::s_execute(int id, Object& user, Object& target)
 	if (i == commonActionDouble.end())
 		return execute(id, user);
 	return i->second(user, target);
+}
+
+bool Action::event_touch(Object& user, Object& target)
+{
+	return touchAction(user, target);
 }
 
 bool Action::execute(int id, Object& user)
@@ -311,5 +317,26 @@ std::unordered_map<int, Action::ValueDouble> Action::commonActionDouble =
 		u.status->second.cool = 120;	// 仮
 		return true;
 	}},
+};
+
+Action::ValueDouble Action::touchAction = {
+	[](Object& user, Object& target) {
+		switch (DataBase::gameFlag++)
+		{
+		case 0:
+			TextManager::player.set(u8R"(\b暗い、暗い場所だ。\w4\n崩れた壁から微かに月明かりが差し込む、\w2\nどうやら廃れた病院らしかった。\w9\e)");
+			break;
+		case 1:
+			TextManager::player.set(u8R"(\b進まなくてはいけない。\w1先へ。\w1先へ。\w2\n迎えに行かなくてはいけない。\w6\n\n…\w1…\w1誰を？\w6\n…\w1…\w1浮かんだ疑問はすぐに飢えるような使命感に塗りつぶされていった。\w9\e)");
+			break;
+		case 2:
+			TextManager::player.set(u8R"(\b扉が立ち塞がる。鍵がかかっているようだ。\w2\n既に鍵を手に入れたならば、それが使えるかもしれない。\w2\nそうでなくとも、何度か殴りつければそのうち開くだろう。\w9\e)");
+			break;
+		case 3:
+			TextManager::player.set(u8R"(\b花の形をした怪物を、必死に殴りつけて殺す。\w2\n先へ進むごとに強靭になっていく怪物は、\nまるでこの先へ進ませまいとしているかのようだった。\w4\n\n邪魔をされるのが、酷く腹立たしい。\w6\n\nなぜこんなにも苛つくのだろう。\w4\nなぜこんなにも空虚を感じているのだろう。\w9\e)");
+			break;
+		}
+		return true;
+	},
 };
 

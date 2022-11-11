@@ -15,6 +15,7 @@ public:
 	void damage(int v);
 	bool has(Status::State state)const;
 	void reset(int num);
+	Status::Type type() { return status ? status->first->type : Status::Type::ev; }
 
 	operator bool()const noexcept { return static_cast<bool>(status); }
 };

@@ -28,28 +28,6 @@ std::vector<Action> DataBase::action =
 			return true;
 		}},
 	}},
-	{{
-		{Action::Key::touch,[](Object& user, Object& target) {
-			target.status->second.flag |= 4;
-			static int num = 0;
-			switch (num++)
-			{
-			case 0:
-				TextManager::player.set(u8R"(\b暗い、暗い場所だ。\w6\n崩れた壁から微かに月明かりが差し込む、\nどうやら廃れた病院らしかった。\w9\e)");
-				break;
-			case 1:
-				TextManager::player.set(u8R"(\b進まなくてはいけない。先へ。先へ。\n迎えに行かなくてはいけない。\w6\n\n…\w2…\w2誰を？\w6\n浮かんだ疑問は\w2…\w2…\w2すぐに飢えるような使命感に塗りつぶされていった。\w9\e)");
-				break;
-			case 2:
-				TextManager::player.set(u8R"(\b扉が立ち塞がる。鍵がかかっているようだ。\w4\n既に鍵を手に入れたならば、それが使えるかもしれない。\w4\nそうでなくとも、何度か殴りつければそのうち開くだろう。\w9\e)");
-				break;
-			case 3:
-				TextManager::player.set(u8R"(\b花の形をした怪物を、必死に殴りつけて殺す。\n先へ進むごとに強靭になっていく怪物は、\nまるでこの先へ進ませまいとしているかのようだった。\w6\n\n邪魔をされるのが、酷く腹立たしい。\w4\nなぜこんなにも苛つくのだろう。\w4\nなぜこんなにも空虚を感じているのだろう。\w9\e)");
-				break;
-			}
-			return true;
-		}},
-	}},
 };
 
 std::map<int, Enemy> DataBase::enemy =
@@ -62,7 +40,6 @@ std::map<int, Enemy> DataBase::enemy =
 	{4,Enemy(u8"哄笑する花", 150, 14, 2, 0, 4, u8"data/picture/flower1720.png", 0,{{105,1},{204,2},{204,1},{207,1},{401,1},{402,1},{404,1}},0x2000,&DataBase::action[1]) },
 	{100,Enemy(u8"扉", 200, 0, 0, 0, 0, u8"data/picture/door.png", 0,{},-1,&DataBase::action[0])},
 	{200,Enemy(u8"扉", 50, 0, 0, 0, 0, u8"data/picture/door.png", 0,{},-1,&DataBase::action[0])},
-	{201,Enemy(u8"イベント", 0, 0, 0, 0, 0, u8"data/picture/door.png", 1,{},-1,&DataBase::action[2])},
 };
 
 void DataBase::LoadItem(const char* FileName)

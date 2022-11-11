@@ -4,10 +4,20 @@
 
 bool Object::execute(int id, Object& user)
 {
-	if (status->first->action != nullptr)
-		return status->first->action->execute(id, user, *this);
+	if (status)
+	{
+		if (status->first->action != nullptr)
+			return status->first->action->execute(id, user, *this);
+		else
+			return Action::s_execute(id, user, *this);
+	}
 	else
-		return Action::s_execute(id, user, *this);
+	{
+		if (id == Action::touch)
+			return Action::event_touch(user, *this);
+		else
+			return false;
+	}
 }
 
 void Object::damage(int v)

@@ -13,6 +13,8 @@ public:
 	static std::map<int, Enemy> enemy;
 	static Player player;
 
+	static inline int gameFlag = 0;
+
 	static void LoadItem(const char* FileName);
 };
 
