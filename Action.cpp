@@ -220,6 +220,7 @@ std::unordered_map<int, Action::ValueSingle> Action::commonActionSingle =
 				u.pos = (*i)->pos + 1;
 			}
 		}
+		Field::sort();
 		u.status->second.cool = 120;	// ‰¼
 		return true;
 	}},
@@ -311,8 +312,7 @@ std::unordered_map<int, Action::ValueDouble> Action::commonActionDouble =
 			u.pos -= u.status->second.speedFront;
 			if (u.pos == t.pos)
 				u.pos += 1;
-			else if (u.pos < t.pos)
-				std::iter_swap(Field::getIterator(u.pos), Field::getIterator(t.pos));
+			Field::sort();
 		}
 		u.status->second.cool = 120;	// ‰¼
 		return true;
