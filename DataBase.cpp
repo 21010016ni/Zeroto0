@@ -28,6 +28,21 @@ std::vector<Action> DataBase::action =
 			return true;
 		}},
 	}},
+	{{
+		{Action::Key::item_use + 100,[](Object& u, Object& t) {
+			//target.status->second.flag |= 1;
+			t.status->second.flag |= 4;
+			TextManager::player.set(u8R"(\b鍵を使って宝箱を開いた。\w9\e)");
+			u.status->second.AddItem(t.status->second.item);
+			u.status->second.cool = 60;
+			return true;
+		}},
+		{Action::Key::item_use + 0,[](Object& u, Object& t) {
+			TextManager::player.set((u8R"(\b宝箱だ。鍵がかかっていて開かない。\nあと)" + ext::to_u8string(t.status->second.hp / u.status->second.atk) + u8R"(回も殴れば開きそうだ。\w9\e)").c_str());
+			u.status->second.cool = 20;
+			return true;
+		}},
+	}},
 };
 
 std::map<int, Enemy> DataBase::enemy =
@@ -40,6 +55,8 @@ std::map<int, Enemy> DataBase::enemy =
 	{4,Enemy(u8"哄笑する花", 150, 14, 2, 0, 4, u8"data/picture/flower1720.png", 0,{{105,1},{204,2},{204,1},{207,1},{401,1},{402,1},{404,1}},0x2000,&DataBase::action[1]) },
 	{100,Enemy(u8"扉", 200, 0, 0, 0, 0, u8"data/picture/door.png", 0,{},-1,&DataBase::action[0])},
 	{200,Enemy(u8"扉", 50, 0, 0, 0, 0, u8"data/picture/door.png", 0,{},-1,&DataBase::action[0])},
+	{101,Enemy(u8"宝箱",80,0,0,0,0,u8"data/picture/box.png",1,{{102,1},{103,1},{104,1},{105,1},{106,1},{201,5},{202,5},{203,4}},-1,&DataBase::action[2])},
+	{102,Enemy(u8"宝箱",80,0,0,0,0,u8"data/picture/box.png",1,{{102,1},{103,1},{104,1},{105,1},{106,1},{204,5},{205,5},{206,4}},-1,&DataBase::action[2])},
 };
 
 void DataBase::LoadItem(const char* FileName)

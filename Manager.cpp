@@ -378,7 +378,7 @@ bool Manager::update()
 					{
 						(*i)->execute(Action::touch, *player);
 						if (**i)
-							(*i)->status->second.flag |= 2;
+							(*i)->status->second.flag |= 10;
 					}
 					if(!(**i) || (*i)->status->second.flag & 1)
 					{
@@ -395,6 +395,10 @@ bool Manager::update()
 				if (!std::uniform_int_distribution{ 0,3 }(engine))
 				{
 					Field::set(new Object(player->pos + player->status->first->range, &(DataBase::enemy.find(__min(player->pos / 60, 4))->second), 4));
+				}
+				else if (!std::uniform_int_distribution{ 0,15 }(engine))
+				{
+					Field::set(new Object(player->pos + player->status->first->range, &(DataBase::enemy.find(__min(player->pos / 100, 1)+101)->second), 4));
 				}
 
 				Effect::set(8, 0, 0, Effect::Pos::leftup);
@@ -487,7 +491,7 @@ bool Manager::update()
 					gameState = GameState::over;
 					break;
 				}
-				if (**i)
+				if (**i && ((*i)->status->second.flag & 8) == 0)
 					player->status->second.AddItem((*i)->status->second.item);
 				i = Field::erase(i);
 				continue;

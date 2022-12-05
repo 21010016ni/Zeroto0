@@ -85,7 +85,7 @@ public:
 	int speedFront;
 	int speedBack;
 
-	unsigned char flag;	// -,-,-,-, -,次タイミングで削除,接触済み,通行不可
+	unsigned char flag;	// -,-,-,-, 削除時ドロップなし,次タイミングで削除,接触済み,通行不可
 
 	std::map<int, int> item;	// 所持アイテム　敵はこれをStatusからコピーして受け取り、ドロップする
 	std::map<Status::State, int> state;	// 現在状態、secondは時間
